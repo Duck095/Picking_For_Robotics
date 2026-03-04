@@ -26,9 +26,9 @@ class ConveyorEnv(gym.Env):
         if use_gui:
             print("Connected GUI:", self.cid)
 
-        p.setAdditionalSearchPath(pybullet_data.getDataPath())
-        p.setGravity(0, 0, -9.81)
-        p.setTimeStep(1.0 / self.config.PHYSICS_HZ)
+        p.setAdditionalSearchPath(pybullet_data.getDataPath(), physicsClientId=self.cid)
+        p.setGravity(0, 0, -9.81, physicsClientId=self.cid)
+        p.setTimeStep(1.0 / self.config.PHYSICS_HZ, physicsClientId=self.cid)
 
         self.observation_space = spaces.Box(
             low=0, high=255,
@@ -64,14 +64,14 @@ class ConveyorEnv(gym.Env):
         self._setup_scene()
 
     def _setup_scene(self):
-        p.resetSimulation()
-        p.setAdditionalSearchPath(pybullet_data.getDataPath())
-        p.setGravity(0, 0, -9.81)
-        p.setTimeStep(1.0 / self.config.PHYSICS_HZ)
+        p.resetSimulation(physicsClientId=self.cid)
+        p.setAdditionalSearchPath(pybullet_data.getDataPath(), physicsClientId=self.cid)
+        p.setGravity(0, 0, -9.81, physicsClientId=self.cid)
+        p.setTimeStep(1.0 / self.config.PHYSICS_HZ, physicsClientId=self.cid)
+        
+        p.loadURDF("plane.urdf", physicsClientId=self.cid)
 
-        p.loadURDF("plane.urdf")
-
-        self.robot = p.loadURDF("franka_panda/panda.urdf", useFixedBase=True)
+        self.robot = p.loadURDF("franka_panda/panda.urdf", useFixedBase=True, physicsClientId=self.cid)
         self.ctrl = PandaController(self.robot, grip_yaw=math.pi / 2)
         self.ctrl.reset_home()
         
@@ -80,10 +80,11 @@ class ConveyorEnv(gym.Env):
         self.grasper.ee_link = ee
         self.rewarder.ee_link = ee
         
-        self.object_id = p.loadURDF("cube_small.urdf", basePosition=[0.55, 0.0, 0.02])
+        self.object_id = p.loadURDF("cube_small.urdf", basePosition=[0.55, 0.0, 0.02], physicsClientId=self.cid)
+
 
         for _ in range(30):
-            p.stepSimulation()
+            p.stepSimulation(physicsClientId=self.cid)
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -100,6 +101,8 @@ class ConveyorEnv(gym.Env):
         return self.frame_buffer, {}
 
     def step(self, action):
+        action = np.asarray(action, dtype=np.float32)
+        action = np.clip(action, self.action_space.low, self.action_space.high)
         dx, dy, dz, grip = action
 
         dx = float(dx) * self.config.ACTION_SCALE_XY
