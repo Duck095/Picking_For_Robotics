@@ -55,6 +55,7 @@ class ConveyorEnv(gym.Env):
             dist_weight=self.config.DIST_WEIGHT,
             grasp_reward=self.config.GRASP_REWARD,
             success_bonus=self.config.SUCCESS_BONUS,
+            physics_client_id=self.cid,
         )
 
         self.robot = None
@@ -72,7 +73,7 @@ class ConveyorEnv(gym.Env):
         p.loadURDF("plane.urdf", physicsClientId=self.cid)
 
         self.robot = p.loadURDF("franka_panda/panda.urdf", useFixedBase=True, physicsClientId=self.cid)
-        self.ctrl = PandaController(self.robot, grip_yaw=math.pi / 2)
+        self.ctrl = PandaController(self.robot, grip_yaw=math.pi / 2, physics_client_id=self.cid)
         self.ctrl.reset_home()
 
         # ✅ đồng bộ EE link cho grasp + reward
