@@ -3,7 +3,6 @@ import pybullet as p
 
 
 def quat_down_with_yaw(yaw: float):
-    # pointing down + yaw quanh trục Z (thay yaw để đổi hướng “ngang” của kẹp)
     return p.getQuaternionFromEuler([math.pi, 0.0, yaw])
 
 
@@ -12,20 +11,23 @@ class PandaController:
     GRIPPER_JOINTS = [9, 10]
     HOME_Q = [0.0, -0.4, 0.0, -2.2, 0.0, 2.0, 0.8]
 
-    def __init__(self, robot_id: int, grip_yaw=math.pi / 2):
+    def __init__(self, robot_id: int, grip_yaw=math.pi / 2, physics_client_id=None):
         self.robot_id = robot_id
+        self.cid = physics_client_id
 
         # ✅ Tìm link “grasptarget” nếu có (tâm giữa 2 ngón). Nếu không có thì fallback 11.
-        self.EE_LINK = self._find_link_index(["panda_grasptarget", "panda_hand", "panda_link8"], fallback=11)
+        self.EE_LINK = self._find_link_index(
+            ["panda_grasptarget", "panda_hand", "panda_link8"],
+            fallback=11
+        )
 
-        # ✅ Bạn chỉnh yaw ở đây: 0 hoặc pi/2 là 2 hướng phổ biến
         self.grip_yaw = grip_yaw
         self.ee_orn = quat_down_with_yaw(self.grip_yaw)
 
         # IK limits
         self.ll, self.ul, self.jr = [], [], []
         for j in self.ARM_JOINTS:
-            info = p.getJointInfo(self.robot_id, j)
+            info = p.getJointInfo(self.robot_id, j, physicsClientId=self.cid)
             low, high = info[8], info[9]
             self.ll.append(low)
             self.ul.append(high)
@@ -35,10 +37,9 @@ class PandaController:
         self.target_pos = [0.55, 0.0, 0.25]
 
     def _find_link_index(self, name_candidates, fallback=11):
-        # scan all joints: link name is jointInfo[12]
-        num_j = p.getNumJoints(self.robot_id)
+        num_j = p.getNumJoints(self.robot_id, physicsClientId=self.cid)
         for i in range(num_j):
-            info = p.getJointInfo(self.robot_id, i)
+            info = p.getJointInfo(self.robot_id, i, physicsClientId=self.cid)
             link_name = info[12].decode("utf-8")
             if link_name in name_candidates:
                 return i
@@ -49,24 +50,36 @@ class PandaController:
         self.ee_orn = quat_down_with_yaw(self.grip_yaw)
 
     def get_ee_pose(self):
-        ls = p.getLinkState(self.robot_id, self.EE_LINK)
+        ls = p.getLinkState(self.robot_id, self.EE_LINK, physicsClientId=self.cid)
         return ls[4], ls[5]
 
     def get_arm_q(self):
-        return [p.getJointState(self.robot_id, j)[0] for j in self.ARM_JOINTS]
+        return [p.getJointState(self.robot_id, j, physicsClientId=self.cid)[0] for j in self.ARM_JOINTS]
 
     def open_gripper(self):
         for j in self.GRIPPER_JOINTS:
-            p.setJointMotorControl2(self.robot_id, j, p.POSITION_CONTROL, targetPosition=0.04, force=80)
+            p.setJointMotorControl2(
+                self.robot_id, j, p.POSITION_CONTROL,
+                targetPosition=0.04, force=80,
+                physicsClientId=self.cid
+            )
 
     def close_gripper(self):
         for j in self.GRIPPER_JOINTS:
-            p.setJointMotorControl2(self.robot_id, j, p.POSITION_CONTROL, targetPosition=0.0, force=200)
+            p.setJointMotorControl2(
+                self.robot_id, j, p.POSITION_CONTROL,
+                targetPosition=0.0, force=200,
+                physicsClientId=self.cid
+            )
 
     def reset_home(self):
         for i, j in enumerate(self.ARM_JOINTS):
-            p.resetJointState(self.robot_id, j, self.HOME_Q[i])
-            p.setJointMotorControl2(self.robot_id, j, p.POSITION_CONTROL, targetPosition=self.HOME_Q[i], force=300)
+            p.resetJointState(self.robot_id, j, self.HOME_Q[i], physicsClientId=self.cid)
+            p.setJointMotorControl2(
+                self.robot_id, j, p.POSITION_CONTROL,
+                targetPosition=self.HOME_Q[i], force=300,
+                physicsClientId=self.cid
+            )
 
         self.open_gripper()
 
@@ -96,11 +109,16 @@ class PandaController:
             jointRanges=self.jr,
             restPoses=rest,
             maxNumIterations=140,
-            residualThreshold=1e-4
+            residualThreshold=1e-4,
+            physicsClientId=self.cid
         )
 
         for i, j in enumerate(self.ARM_JOINTS):
-            p.setJointMotorControl2(self.robot_id, j, p.POSITION_CONTROL, targetPosition=q[i], force=arm_force)
+            p.setJointMotorControl2(
+                self.robot_id, j, p.POSITION_CONTROL,
+                targetPosition=q[i], force=arm_force,
+                physicsClientId=self.cid
+            )
 
         if float(grip) >= 0.5:
             self.close_gripper()
