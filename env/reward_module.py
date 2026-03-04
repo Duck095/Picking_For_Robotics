@@ -1,6 +1,7 @@
 import math
 import pybullet as p
 
+
 class RewardModuleStage1:
     def __init__(
         self,
@@ -10,7 +11,7 @@ class RewardModuleStage1:
         dist_weight: float = 0.2,
         grasp_reward: float = 2.0,
         success_bonus: float = 2.0,
-        delta_clip: float = 0.02,
+        delta_clip: float = 0.02,   # ✅ clip progress để tránh farm reward
         physics_client_id=None,
     ):
         self.ee_link = ee_link
@@ -33,11 +34,14 @@ class RewardModuleStage1:
 
     @staticmethod
     def _dist(a, b):
-        dx, dy, dz = a[0]-b[0], a[1]-b[1], a[2]-b[2]
-        return math.sqrt(dx*dx + dy*dy + dz*dz)
+        dx = a[0] - b[0]
+        dy = a[1] - b[1]
+        dz = a[2] - b[2]
+        return math.sqrt(dx * dx + dy * dy + dz * dz)
 
     def _ee_pos(self, robot_id: int):
-        return p.getLinkState(robot_id, self.ee_link, physicsClientId=self.physics_client_id)[4]
+        ls = p.getLinkState(robot_id, self.ee_link, physicsClientId=self.physics_client_id)
+        return ls[4]
 
     def compute(self, robot_id: int, obj_id: int, grip: float, holding: bool):
         info = {}
@@ -46,19 +50,22 @@ class RewardModuleStage1:
         obj_pos, _ = p.getBasePositionAndOrientation(obj_id, physicsClientId=self.physics_client_id)
         d = self._dist(ee, obj_pos)
 
-        # progress shaping (clipped to avoid farming)
+        # ✅ progress shaping (clipped)
         if self._prev_dist is None:
             delta = 0.0
         else:
             delta = self._prev_dist - d
         self._prev_dist = d
-        if delta > self.delta_clip: delta = self.delta_clip
-        if delta < -self.delta_clip: delta = -self.delta_clip
+
+        if delta > self.delta_clip:
+            delta = self.delta_clip
+        elif delta < -self.delta_clip:
+            delta = -self.delta_clip
 
         reward = self.dist_weight * delta
         reward -= self.time_penalty
 
-        # grasp event reward
+        # ✅ thưởng khi lần đầu cầm thật (constraint attach)
         if holding and not self._gave_grasp:
             reward += self.grasp_reward
             self._gave_grasp = True
@@ -66,7 +73,7 @@ class RewardModuleStage1:
         terminated = False
         success = False
 
-        # success: holding + lifted
+        # ✅ success khi đang cầm thật + nhấc lên
         if (not self._success) and holding and (obj_pos[2] >= self.lift_height):
             self._success = True
             reward += self.success_bonus
