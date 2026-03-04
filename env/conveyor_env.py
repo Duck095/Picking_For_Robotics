@@ -21,7 +21,7 @@ class ConveyorEnv(gym.Env):
         self.config = EnvConfig()
         self.use_gui = use_gui
 
-        # ✅ CHÈN/THAY Ở ĐÂY: lưu client id
+        # ✅ lưu client id
         self.cid = p.connect(p.GUI) if use_gui else p.connect(p.DIRECT)
         if use_gui:
             print("Connected GUI:", self.cid)
@@ -68,20 +68,23 @@ class ConveyorEnv(gym.Env):
         p.setAdditionalSearchPath(pybullet_data.getDataPath(), physicsClientId=self.cid)
         p.setGravity(0, 0, -9.81, physicsClientId=self.cid)
         p.setTimeStep(1.0 / self.config.PHYSICS_HZ, physicsClientId=self.cid)
-        
+
         p.loadURDF("plane.urdf", physicsClientId=self.cid)
 
         self.robot = p.loadURDF("franka_panda/panda.urdf", useFixedBase=True, physicsClientId=self.cid)
         self.ctrl = PandaController(self.robot, grip_yaw=math.pi / 2)
         self.ctrl.reset_home()
-        
-        # ✅ CHÈN Ở ĐÂY: đồng bộ EE link cho grasp + reward
+
+        # ✅ đồng bộ EE link cho grasp + reward
         ee = self.ctrl.EE_LINK
         self.grasper.ee_link = ee
         self.rewarder.ee_link = ee
-        
-        self.object_id = p.loadURDF("cube_small.urdf", basePosition=[0.55, 0.0, 0.02], physicsClientId=self.cid)
 
+        self.object_id = p.loadURDF(
+            "cube_small.urdf",
+            basePosition=[0.55, 0.0, 0.02],
+            physicsClientId=self.cid
+        )
 
         for _ in range(30):
             p.stepSimulation(physicsClientId=self.cid)
@@ -119,7 +122,7 @@ class ConveyorEnv(gym.Env):
 
         # 3) physics
         for _ in range(self.config.SUBSTEPS):
-            p.stepSimulation()
+            p.stepSimulation(physicsClientId=self.cid)
 
         # 4) update obs buffer
         obs = self.camera.render()
@@ -136,6 +139,6 @@ class ConveyorEnv(gym.Env):
 
     def close(self):
         try:
-            p.disconnect(self.cid) # ✅ THAY Ở ĐÂY: disconnect đúng client của env
+            p.disconnect(self.cid)
         except Exception:
             pass
