@@ -9,7 +9,6 @@ class CameraModule:
         self.render_w = 128
         self.render_h = 128
         self.cid = physics_client_id
-
         self.use_tiny_renderer = use_tiny_renderer
 
         self.view_matrix = p.computeViewMatrix(
