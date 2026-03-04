@@ -130,8 +130,19 @@ class ConveyorEnv(gym.Env):
         self.frame_buffer[-1] = obs
 
         # 5) reward
-        reward, terminated, info = self.rewarder.compute(self.robot, self.object_id, self.last_grip)
+        # ✅ lấy holding từ grasper (tùy bạn đặt tên thuộc tính)
+        holding = False
+        if hasattr(self.grasper, "holding"):
+            holding = self.grasper.holding
+        elif hasattr(self.grasper, "constraint_id"):
+            holding = self.grasper.constraint_id is not None
+        else:
+            holding = self.grasper.cid is not None  # legacy fallback
 
+        reward, terminated, info = self.rewarder.compute(
+            self.robot, self.object_id, self.last_grip, holding
+        )
+        
         self.step_count += 1
         truncated = self.step_count >= self.config.MAX_STEPS
 
