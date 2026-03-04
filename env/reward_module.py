@@ -1,7 +1,6 @@
 import math
 import pybullet as p
 
-
 class RewardModuleStage1:
     def __init__(
         self,
@@ -11,7 +10,7 @@ class RewardModuleStage1:
         dist_weight: float = 0.2,
         grasp_reward: float = 2.0,
         success_bonus: float = 2.0,
-        success_dist: float = 0.12,  # EE gần vật
+        delta_clip: float = 0.02,
         physics_client_id=None,
     ):
         self.ee_link = ee_link
@@ -20,64 +19,62 @@ class RewardModuleStage1:
         self.dist_weight = dist_weight
         self.grasp_reward = grasp_reward
         self.success_bonus = success_bonus
-        self.success_dist = success_dist
+        self.delta_clip = delta_clip
         self.physics_client_id = physics_client_id
 
         self._prev_dist = None
         self._success = False
+        self._gave_grasp = False
 
     def reset(self):
         self._prev_dist = None
         self._success = False
+        self._gave_grasp = False
 
     @staticmethod
     def _dist(a, b):
-        dx = a[0] - b[0]
-        dy = a[1] - b[1]
-        dz = a[2] - b[2]
-        return math.sqrt(dx * dx + dy * dy + dz * dz)
+        dx, dy, dz = a[0]-b[0], a[1]-b[1], a[2]-b[2]
+        return math.sqrt(dx*dx + dy*dy + dz*dz)
 
     def _ee_pos(self, robot_id: int):
-        ls = p.getLinkState(robot_id, self.ee_link, physicsClientId=self.physics_client_id)
-        return ls[4]
+        return p.getLinkState(robot_id, self.ee_link, physicsClientId=self.physics_client_id)[4]
 
-    def is_grasp_success(self, robot_id: int, obj_id: int, grip: float) -> bool:
-        if float(grip) < 0.5:
-            return False
-
-        obj_pos, _ = p.getBasePositionAndOrientation(obj_id, physicsClientId=self.physics_client_id)
-        if obj_pos[2] < self.lift_height:
-            return False
-
-        ee = self._ee_pos(robot_id)
-        d = self._dist(ee, obj_pos)
-        return d < self.success_dist
-
-    def compute(self, robot_id: int, obj_id: int, grip: float):
+    def compute(self, robot_id: int, obj_id: int, grip: float, holding: bool):
         info = {}
 
         ee = self._ee_pos(robot_id)
         obj_pos, _ = p.getBasePositionAndOrientation(obj_id, physicsClientId=self.physics_client_id)
         d = self._dist(ee, obj_pos)
 
-        reward = 0.0
+        # progress shaping (clipped to avoid farming)
         if self._prev_dist is None:
-            self._prev_dist = d
+            delta = 0.0
         else:
-            reward += self.dist_weight * (self._prev_dist - d)
-            self._prev_dist = d
+            delta = self._prev_dist - d
+        self._prev_dist = d
+        if delta > self.delta_clip: delta = self.delta_clip
+        if delta < -self.delta_clip: delta = -self.delta_clip
 
+        reward = self.dist_weight * delta
         reward -= self.time_penalty
 
-        terminated = False
-        if not self._success and self.is_grasp_success(robot_id, obj_id, grip):
-            self._success = True
-            reward += (self.grasp_reward + self.success_bonus)
-            terminated = True
-            info["success"] = True
-        else:
-            info["success"] = False
+        # grasp event reward
+        if holding and not self._gave_grasp:
+            reward += self.grasp_reward
+            self._gave_grasp = True
 
+        terminated = False
+        success = False
+
+        # success: holding + lifted
+        if (not self._success) and holding and (obj_pos[2] >= self.lift_height):
+            self._success = True
+            reward += self.success_bonus
+            terminated = True
+            success = True
+
+        info["success"] = bool(success)
+        info["holding"] = bool(holding)
         info["ee_obj_dist"] = float(d)
         info["obj_z"] = float(obj_pos[2])
-        return reward, terminated, info
+        return float(reward), bool(terminated), info
