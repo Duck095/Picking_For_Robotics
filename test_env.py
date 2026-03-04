@@ -1,7 +1,7 @@
 # source D:/Picking-For-Robot/rl_robot/Scripts/activate
 import time
 from env.conveyor_env import ConveyorEnv
-
+import pybullet as p
 env = ConveyorEnv(use_gui=True)
 env.reset()
 
@@ -31,6 +31,7 @@ try:
         if term or trunc:
             print("DONE", "term", term, "trunc", trunc, info)
             break
+    print("cube pos:", p.getBasePositionAndOrientation(env.object_id)[0])
 
 except KeyboardInterrupt:
     pass
