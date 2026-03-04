@@ -12,6 +12,7 @@ class RewardModuleStage1:
         grasp_reward: float = 2.0,
         success_bonus: float = 2.0,
         success_dist: float = 0.12,  # EE gần vật
+        physics_client_id=None,
     ):
         self.ee_link = ee_link
         self.lift_height = lift_height
@@ -20,6 +21,7 @@ class RewardModuleStage1:
         self.grasp_reward = grasp_reward
         self.success_bonus = success_bonus
         self.success_dist = success_dist
+        self.physics_client_id = physics_client_id
 
         self._prev_dist = None
         self._success = False
@@ -36,14 +38,14 @@ class RewardModuleStage1:
         return math.sqrt(dx * dx + dy * dy + dz * dz)
 
     def _ee_pos(self, robot_id: int):
-        ls = p.getLinkState(robot_id, self.ee_link)
+        ls = p.getLinkState(robot_id, self.ee_link, physicsClientId=self.physics_client_id)
         return ls[4]
 
     def is_grasp_success(self, robot_id: int, obj_id: int, grip: float) -> bool:
         if float(grip) < 0.5:
             return False
 
-        obj_pos, _ = p.getBasePositionAndOrientation(obj_id)
+        obj_pos, _ = p.getBasePositionAndOrientation(obj_id, physicsClientId=self.physics_client_id)
         if obj_pos[2] < self.lift_height:
             return False
 
@@ -55,7 +57,7 @@ class RewardModuleStage1:
         info = {}
 
         ee = self._ee_pos(robot_id)
-        obj_pos, _ = p.getBasePositionAndOrientation(obj_id)
+        obj_pos, _ = p.getBasePositionAndOrientation(obj_id, physicsClientId=self.physics_client_id)
         d = self._dist(ee, obj_pos)
 
         reward = 0.0
