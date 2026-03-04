@@ -21,11 +21,10 @@ class ConveyorEnv(gym.Env):
         self.config = EnvConfig()
         self.use_gui = use_gui
 
+        # ✅ CHÈN/THAY Ở ĐÂY: lưu client id
+        self.cid = p.connect(p.GUI) if use_gui else p.connect(p.DIRECT)
         if use_gui:
-            cid = p.connect(p.GUI)
-            print("Connected GUI:", cid)
-        else:
-            p.connect(p.DIRECT)
+            print("Connected GUI:", self.cid)
 
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
         p.setGravity(0, 0, -9.81)
@@ -75,7 +74,12 @@ class ConveyorEnv(gym.Env):
         self.robot = p.loadURDF("franka_panda/panda.urdf", useFixedBase=True)
         self.ctrl = PandaController(self.robot, grip_yaw=math.pi / 2)
         self.ctrl.reset_home()
-
+        
+        # ✅ CHÈN Ở ĐÂY: đồng bộ EE link cho grasp + reward
+        ee = self.ctrl.EE_LINK
+        self.grasper.ee_link = ee
+        self.rewarder.ee_link = ee
+        
         self.object_id = p.loadURDF("cube_small.urdf", basePosition=[0.55, 0.0, 0.02])
 
         for _ in range(30):
@@ -129,6 +133,6 @@ class ConveyorEnv(gym.Env):
 
     def close(self):
         try:
-            p.disconnect()
+            p.disconnect(self.cid) # ✅ THAY Ở ĐÂY: disconnect đúng client của env
         except Exception:
             pass
