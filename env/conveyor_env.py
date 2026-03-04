@@ -42,7 +42,7 @@ class ConveyorEnv(gym.Env):
             dtype=np.float32,
         )
 
-        self.camera = CameraModule(self.config.IMG_SIZE, physics_client_id=self.cid)
+        self.camera = CameraModule(self.config.IMG_SIZE, physics_client_id=self.cid, use_tiny_renderer=not self.use_gui)
         self.frame_buffer = None
         self.step_count = 0
         self.last_grip = 0.0
