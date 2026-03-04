@@ -47,7 +47,7 @@ class ConveyorEnv(gym.Env):
         self.step_count = 0
         self.last_grip = 0.0
 
-        self.grasper = SimpleAttachGrasp(ee_link=11, max_dist=0.09, max_force=2500)
+        self.grasper = SimpleAttachGrasp(ee_link=11, max_dist=0.09, max_force=2500,  physics_client_id=self.cid, close_th=0.5, open_th=0.5)
         self.rewarder = RewardModuleStage1(
             ee_link=11,
             lift_height=self.config.LIFT_HEIGHT,
