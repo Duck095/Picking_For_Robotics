@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 import time
 import numpy as np
-from env.place_env import PlaceEnv
+from env.place_env import PlaceEnv  
 
 env = PlaceEnv(use_gui=True, start_held=True)
 
@@ -36,6 +36,6 @@ for step in range(5000):
         print("RESET\n")
         obs, _ = env.reset()
 
-    time.sleep(1/60)
+    time.sleep(1 / 60)
 
 env.close()
