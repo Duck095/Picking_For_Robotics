@@ -8,7 +8,6 @@ import math
 from config.env_config import EnvConfig
 from .camera import Camera
 from env.panda_controller import PandaController
-from env.grasp_module import SimpleAttachGrasp
 from env.reward_place import RewardModulePlace
 
 
@@ -18,37 +17,37 @@ class PlaceEnv(gym.Env):
     def __init__(self, render_mode="rgb_array", use_gui=False, start_held=True, substage="3A"):
         super().__init__()
         self.config = EnvConfig()
-        self.use_gui = use_gui
-        self.start_held = start_held
+        self.use_gui = bool(use_gui)
+        self.start_held = bool(start_held)
         self.substage = str(substage)
 
-        # ✅ workspace ranges for PandaController.apply_delta_action
+        # workspace ranges (khớp PandaController.apply_delta_action)
         self.x_range = (0.10, 0.85)
         self.y_range = (-0.60, 0.60)
         self.z_range = (0.005, 0.55)
 
-        self.cid = p.connect(p.GUI) if use_gui else p.connect(p.DIRECT)
-        if use_gui:
+        self.cid = p.connect(p.GUI) if self.use_gui else p.connect(p.DIRECT)
+        if self.use_gui:
             print("Connected GUI:", self.cid)
 
         p.setAdditionalSearchPath(pybullet_data.getDataPath(), physicsClientId=self.cid)
         p.setGravity(0, 0, -9.81, physicsClientId=self.cid)
         p.setTimeStep(1.0 / self.config.PHYSICS_HZ, physicsClientId=self.cid)
 
-        # ✅ SB3 VecTransposeImage needs (H, W, C)
+        # SB3 VecTransposeImage needs (H, W, C)
         self.observation_space = spaces.Box(
             low=0, high=255,
             shape=(self.config.IMG_SIZE, self.config.IMG_SIZE, 3 * self.config.FRAME_STACK),
             dtype=np.uint8,
         )
 
+        # action: dx, dy, dz, grip
         self.action_space = spaces.Box(
             low=np.array([-1, -1, -1, 0], dtype=np.float32),
             high=np.array([1, 1, 1, 1], dtype=np.float32),
             dtype=np.float32,
         )
 
-        # camera.py uses render_rgb()
         self.camera = Camera(
             img_size=self.config.IMG_SIZE,
             physics_client_id=self.cid,
@@ -57,15 +56,12 @@ class PlaceEnv(gym.Env):
             crop_box=(16, 112, 16, 112),
         )
 
-        # legacy grasp module
-        self.grasper = SimpleAttachGrasp(ee_link=11, max_dist=0.12, max_force=2500)
-
         # target
         self.target_pos = np.array([0.45, 0.20, 0.02], dtype=np.float32)
         success_dist, table_z, z_release_max = self._params_for_substage(self.substage)
 
         self.rewarder = RewardModulePlace(
-            ee_link=11,
+            ee_link=11,  # sẽ sync theo controller EE_LINK sau
             target_pos=self.target_pos,
             time_penalty=0.01,
             dist_weight=0.6,
@@ -89,6 +85,9 @@ class PlaceEnv(gym.Env):
         self.object_id = None
         self.target_vis_id = None
 
+        # 대신 grasp_module: constraint attach
+        self.hold_cid = None  # constraint id khi đang "cầm"
+
         self._setup_scene()
 
     def _params_for_substage(self, substage: str):
@@ -108,8 +107,44 @@ class PlaceEnv(gym.Env):
         return np.array([0.45, 0.20, 0.02], dtype=np.float32)
 
     def _pack_obs(self):
-        # frame_buffer: (S, H, W, 3) -> (H, W, 3*S)
         return np.concatenate(list(self.frame_buffer), axis=-1)
+
+    def _detach(self):
+        if self.hold_cid is None:
+            return
+        try:
+            p.removeConstraint(self.hold_cid, physicsClientId=self.cid)
+        except Exception:
+            pass
+        self.hold_cid = None
+
+    def _attach(self):
+        """Attach object to EE using fixed constraint (stage place)."""
+        if self.hold_cid is not None:
+            return
+        ee_pos, ee_orn = p.getLinkState(self.robot, self.ctrl.EE_LINK, physicsClientId=self.cid)[4:6]
+        obj_pos, obj_orn = p.getBasePositionAndOrientation(self.object_id, physicsClientId=self.cid)
+
+        inv_obj_pos, inv_obj_orn = p.invertTransform(obj_pos, obj_orn)
+        child_pos, child_orn = p.multiplyTransforms(inv_obj_pos, inv_obj_orn, ee_pos, ee_orn)
+
+        self.hold_cid = p.createConstraint(
+            parentBodyUniqueId=self.robot,
+            parentLinkIndex=self.ctrl.EE_LINK,
+            childBodyUniqueId=self.object_id,
+            childLinkIndex=-1,
+            jointType=p.JOINT_FIXED,
+            jointAxis=[0, 0, 0],
+            parentFramePosition=[0, 0, 0],
+            parentFrameOrientation=[0, 0, 0, 1],
+            childFramePosition=child_pos,
+            childFrameOrientation=child_orn,
+            physicsClientId=self.cid,
+        )
+        try:
+            p.changeConstraint(self.hold_cid, maxForce=2500, physicsClientId=self.cid)
+        except Exception:
+            pass
 
     def _setup_scene(self):
         p.resetSimulation(physicsClientId=self.cid)
@@ -128,16 +163,11 @@ class PlaceEnv(gym.Env):
         self.ctrl = PandaController(self.robot, physics_client_id=self.cid, grip_yaw=math.pi / 2)
         self.ctrl.reset_home()
 
-        ee = self.ctrl.EE_LINK
-        self.grasper.ee_link = ee
-        self.rewarder.ee_link = ee
+        # sync ee link for rewarder
+        self.rewarder.ee_link = self.ctrl.EE_LINK
 
         # object
-        self.object_id = p.loadURDF(
-            "cube_small.urdf",
-            basePosition=[0.55, 0.0, 0.02],
-            physicsClientId=self.cid
-        )
+        self.object_id = p.loadURDF("cube_small.urdf", basePosition=[0.55, 0.0, 0.02], physicsClientId=self.cid)
 
         # target marker
         self.target_vis_id = p.loadURDF(
@@ -154,7 +184,7 @@ class PlaceEnv(gym.Env):
         for _ in range(60):
             p.stepSimulation(physicsClientId=self.cid)
 
-        self.grasper.reset()
+        self._detach()
         if self.start_held:
             self._force_start_holding()
 
@@ -164,36 +194,43 @@ class PlaceEnv(gym.Env):
 
         # down
         for _ in range(40):
-            self.ctrl.apply_delta_action(0.0, 0.0, -0.5 * self.config.ACTION_SCALE_Z,
-                                        self.x_range, self.y_range, self.z_range)
+            self.ctrl.apply_delta_action(
+                0.0, 0.0, -0.5 * self.config.ACTION_SCALE_Z,
+                self.x_range, self.y_range, self.z_range
+            )
             self.ctrl.open_gripper()
             p.stepSimulation(physicsClientId=self.cid)
 
         # close + attach
-        for _ in range(30):
-            self.ctrl.apply_delta_action(0.0, 0.0, 0.0,
-                                        self.x_range, self.y_range, self.z_range)
+        for _ in range(20):
+            self.ctrl.apply_delta_action(
+                0.0, 0.0, 0.0,
+                self.x_range, self.y_range, self.z_range
+            )
             self.ctrl.close_gripper()
-            self.grasper.try_attach(self.robot, self.object_id, 1.0)
+            self._attach()
             p.stepSimulation(physicsClientId=self.cid)
 
         # lift
-        for _ in range(30):
-            self.ctrl.apply_delta_action(0.0, 0.0, 0.5 * self.config.ACTION_SCALE_Z,
-                                        self.x_range, self.y_range, self.z_range)
+        for _ in range(20):
+            self.ctrl.apply_delta_action(
+                0.0, 0.0, 0.5 * self.config.ACTION_SCALE_Z,
+                self.x_range, self.y_range, self.z_range
+            )
             self.ctrl.close_gripper()
             p.stepSimulation(physicsClientId=self.cid)
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
+
         self._setup_scene()
         self.rewarder.reset()
 
         self.last_grip = 0.0
         self.step_count = 0
 
-        obs = self.camera.render_rgb()
-        self.frame_buffer = np.repeat(obs[None, ...], self.config.FRAME_STACK, axis=0)
+        rgb = self.camera.render_rgb()
+        self.frame_buffer = np.repeat(rgb[None, ...], self.config.FRAME_STACK, axis=0)
         return self._pack_obs(), {}
 
     def step(self, action):
@@ -206,27 +243,29 @@ class PlaceEnv(gym.Env):
         dz = float(dz) * self.config.ACTION_SCALE_Z
         self.last_grip = float(grip)
 
-        # move arm (controller does not take grip)
+        # move arm
         self.ctrl.apply_delta_action(dx, dy, dz, self.x_range, self.y_range, self.z_range)
 
-        # gripper control
+        # gripper
         if self.last_grip >= 0.5:
             self.ctrl.close_gripper()
+            # giữ: attach nếu chưa có
+            self._attach()
         else:
             self.ctrl.open_gripper()
+            # thả
+            self._detach()
 
-        # attach/detach
-        self.grasper.detach_if_open(self.last_grip)
-        self.grasper.try_attach(self.robot, self.object_id, self.last_grip)
-
+        # physics
         for _ in range(self.config.SUBSTEPS):
             p.stepSimulation(physicsClientId=self.cid)
 
-        obs = self.camera.render_rgb()
+        # obs
+        rgb = self.camera.render_rgb()
         self.frame_buffer = np.roll(self.frame_buffer, -1, axis=0)
-        self.frame_buffer[-1] = obs
+        self.frame_buffer[-1] = rgb
 
-        holding = self.grasper.cid is not None
+        holding = self.hold_cid is not None
 
         reward, terminated, info = self.rewarder.compute(
             self.robot, self.object_id, grip=self.last_grip, holding=holding
@@ -238,6 +277,7 @@ class PlaceEnv(gym.Env):
         return self._pack_obs(), float(reward), bool(terminated), bool(truncated), info
 
     def close(self):
+        self._detach()
         try:
             p.disconnect(self.cid)
         except Exception:
