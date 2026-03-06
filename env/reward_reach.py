@@ -45,6 +45,9 @@ class ReachReward:
         d = self._dist(ee, obj_pos)
 
         r = 0.0
+
+        r += -0.02 * d
+
         if self.prev_dist is None:
             self.prev_dist = d
         else:

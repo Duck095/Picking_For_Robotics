@@ -93,15 +93,18 @@ class ReachEnv(gym.Env):
         obj_pos, _ = p.getBasePositionAndOrientation(self.obj_id, physicsClientId=self.cid)
         self.ctrl.target_pos = [obj_pos[0], obj_pos[1], 0.25]
 
+        # ✅ chọn success_dist theo substage
+        success_dist = self.cfg.success_dist_1b if self.cfg.stage1_substage == "1B" else self.cfg.success_dist_1a
+
         # ✅ reward dùng đúng EE link controller tìm ra
         self.rewarder = ReachReward(
             ee_link=self.ctrl.EE_LINK,
-            success_dist=self.cfg.success_dist,
+            success_dist=success_dist,
             dist_weight=self.cfg.dist_weight,
             time_penalty=self.cfg.time_penalty,
             success_bonus=self.cfg.success_bonus,
             physics_client_id=self.cid,
-            delta_clip=0.02,
+            delta_clip=getattr(self.cfg, "delta_clip", 0.04),  # fallback nếu config chưa có
         )
 
         for _ in range(30):
