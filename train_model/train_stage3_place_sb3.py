@@ -1,4 +1,3 @@
-# train_stage3_place_sb3.py
 import os
 import sys
 import json
@@ -80,7 +79,6 @@ def save_state(state):
 
 def print_stage_status(state):
     done = state.get("done", {})
-
     print("\n===== TRẠNG THÁI CÁC STAGE =====")
     for s in VALID_STAGES:
         status = "DONE" if done.get(s, False) else "CHƯA DONE"
@@ -90,7 +88,6 @@ def print_stage_status(state):
 
 def print_next_action_hint(stage, state):
     done = state.get("done", {})
-
     print("Gợi ý hiện tại:")
     for s in VALID_STAGES:
         status = "DONE" if done.get(s, False) else "CHƯA DONE"
