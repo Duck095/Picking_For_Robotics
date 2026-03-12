@@ -1,10 +1,10 @@
+# test/test_place_env.py
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 import time
 import numpy as np
-
 from env.place_env import PlaceEnv
 
 # =========================
@@ -12,13 +12,11 @@ from env.place_env import PlaceEnv
 # =========================
 USE_GUI = True
 N_EPISODES = 10
-SLEEP_SEC = 1 / 30
+SLEEP_SEC = 1 / 2
 
+# Thứ tự ưu tiên mặc định nếu user chỉ bấm Enter
 MODEL_PRIORITY = [
     "models/stage3_place_latest.zip",
-    "models/stage3_place_3C.zip",
-    "models/stage3_place_3B.zip",
-    "models/stage3_place_3A.zip",
 ]
 
 
@@ -71,7 +69,6 @@ def main():
         test_mode = "random"
         model_path = None
         env = PlaceEnv(use_gui=USE_GUI, start_held=True)
-        vec_env = None
     else:
         model_path, test_mode = choose_model(available_models)
 
@@ -82,7 +79,9 @@ def main():
             print(f"\n[INFO] Selected model: {model_path}")
             print("[MODE] Test trained model")
 
-            vec_env = DummyVecEnv([lambda: PlaceEnv(use_gui=USE_GUI, start_held=True)])
+            vec_env = DummyVecEnv([
+                lambda: PlaceEnv(use_gui=USE_GUI, start_held=True)
+            ])
             vec_env = VecTransposeImage(vec_env)
 
             model = PPO.load(model_path, env=vec_env)
@@ -92,7 +91,6 @@ def main():
             model = None
             model_path = None
             env = PlaceEnv(use_gui=USE_GUI, start_held=True)
-            vec_env = None
 
     success_count = 0
     episode_rewards = []

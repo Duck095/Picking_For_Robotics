@@ -15,7 +15,6 @@ torch.set_num_threads(1)
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecTransposeImage
 from stable_baselines3.common.monitor import Monitor
-
 from env.place_env import PlaceEnv
 from script.callbacks import PlaceTensorboardCallback
 
