@@ -7,7 +7,7 @@ import pybullet_data
 import random
 import math
 
-from config.env_config import EnvConfig
+from config.reach_env_config import EnvConfig
 from env.camera import Camera
 from env.panda_controller import PandaController
 from env.reward_reach import ReachReward
@@ -67,12 +67,17 @@ class ReachEnv(gym.Env):
         self._setup_scene()
 
     def _sample_obj_xy(self):
-        if self.cfg.stage1_substage == "1B":
-            xr, yr = self.cfg.stage1b_x, self.cfg.stage1b_y
-        else:
+        if self.cfg.stage1_substage == "1A":
             xr, yr = self.cfg.stage1a_x, self.cfg.stage1a_y
-        x = random.uniform(xr[0], xr[1])
-        y = random.uniform(yr[0], yr[1])
+        elif self.cfg.stage1_substage == "1B":
+            xr, yr = self.cfg.stage1b_x, self.cfg.stage1b_y
+        elif self.cfg.stage1_substage == "1C":
+            xr, yr = self.cfg.stage1c_x, self.cfg.stage1c_y
+        else:
+            raise ValueError(f"Unknown stage1_substage: {self.cfg.stage1_substage}")
+
+        x = np.random.uniform(*xr)
+        y = np.random.uniform(*yr)
         return x, y
 
     def _setup_scene(self):
@@ -94,7 +99,14 @@ class ReachEnv(gym.Env):
         self.ctrl.target_pos = [obj_pos[0], obj_pos[1], 0.25]
 
         # ✅ chọn success_dist theo substage
-        success_dist = self.cfg.success_dist_1b if self.cfg.stage1_substage == "1B" else self.cfg.success_dist_1a
+        if self.cfg.stage1_substage == "1A":
+            success_dist = self.cfg.success_dist_1a
+        elif self.cfg.stage1_substage == "1B":
+            success_dist = self.cfg.success_dist_1b
+        elif self.cfg.stage1_substage == "1C":
+            success_dist = self.cfg.success_dist_1c
+        else:
+            raise ValueError(f"Unknown stage1_substage: {self.cfg.stage1_substage}")
 
         # ✅ reward dùng đúng EE link controller tìm ra
         self.rewarder = ReachReward(
@@ -161,6 +173,14 @@ class ReachEnv(gym.Env):
             self.debug.point(ee_pos, color=(1, 0, 1), text="TCP", life=0.2)
             self.debug.point(obj_pos, color=(1, 1, 0), text="OBJ", life=0.2)
             self.debug.line(ee_pos, obj_pos, life=0.2)
+
+
+        info["step_count"] = self.step_count
+        info["stage1_substage"] = self.cfg.stage1_substage
+        info["target_ee_pos"] = [float(x) for x in self.ctrl.target_pos]
+        info["action"] = [float(x) for x in action.tolist()]
+        info["terminated"] = bool(terminated)
+        info["truncated"] = bool(truncated)
 
         return self._obs(), float(reward), bool(terminated), bool(truncated), info
 
