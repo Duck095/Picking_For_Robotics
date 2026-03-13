@@ -6,13 +6,13 @@ import pybullet as p
 class ReachReward:
     def __init__(
         self,
-        ee_link: int,
-        success_dist: float,
-        dist_weight: float,
-        time_penalty: float,
-        success_bonus: float,
-        physics_client_id=None,
-        delta_clip: float = 0.02,
+        ee_link: int,                   # Link index của end-effector trên robot
+        success_dist: float,            # Khoảng cách dưới bao nhiêu thì tính là thành công (success)
+        dist_weight: float,             # Hệ số nhân cho phần reward dựa trên delta distance
+        time_penalty: float,            # Phần trừ cố định mỗi step để khuyến khích hoàn thành nhanh
+        success_bonus: float,           # Phần thưởng lớn khi đạt được mục tiêu (dưới success_dist)
+        physics_client_id=None,         # ID của PyBullet physics client (nếu có)
+        delta_clip: float = 0.02,       # Clip giá trị delta distance để tránh reward quá lớn khi có step nhảy vọt
     ):
         self.ee_link = int(ee_link)
         self.success_dist = float(success_dist)
@@ -39,6 +39,7 @@ class ReachReward:
         dz = a[2] - b[2]
         return math.sqrt(dx*dx + dy*dy + dz*dz)
 
+    # Hàm compute trả về reward, terminated, và info dict
     def compute(self, robot_id: int, obj_id: int):
         ee = self._ee_pos(robot_id)
         obj_pos, _ = p.getBasePositionAndOrientation(obj_id, physicsClientId=self.cid)
@@ -74,5 +75,6 @@ class ReachReward:
             "ee_obj_dist": float(d),
             "success_dist": float(self.success_dist),
             "obj_pos": [float(x) for x in obj_pos],
+            "ee_pos": [float(x) for x in ee],
         }
         return float(r), bool(terminated), info
