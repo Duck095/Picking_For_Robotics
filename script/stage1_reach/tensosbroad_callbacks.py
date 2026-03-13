@@ -8,7 +8,7 @@ class ReachTensorboardCallback(BaseCallback):
         super().__init__()
         self.success_buffer = []
         self.dist_buffer = []
-
+  
     def _on_step(self):
 
         infos = self.locals["infos"]

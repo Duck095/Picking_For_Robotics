@@ -18,7 +18,7 @@ if hasattr(signal, "SIGTERM"):
 
 
 class StopTrainingGracefully(Exception):
-    pass
+    pass   
 
 
 class SaveLatestOnStopCallback(BaseCallback):
