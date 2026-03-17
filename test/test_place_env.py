@@ -56,7 +56,7 @@ def choose_model(available_models):
 
 
 def get_place_dist(info):
-    return info.get("ee_goal_dist", info.get("goal_dist", info.get("obj_goal_dist", None)))
+    return info.get("obj_target_dist", info.get("ee_obj_dist", None))
 
 
 def main():
