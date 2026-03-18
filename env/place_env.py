@@ -6,7 +6,7 @@ import numpy as np
 import pybullet as p
 import pybullet_data
 
-# Đảm bảo các module này nằm đúng cấu trúc thư mục của Boss Hướng
+# Các module từ folder env và config của Boss
 from config.place_env_config import PlaceEnvConfig
 from env.camera import Camera
 from env.panda_controller import PandaController
@@ -14,16 +14,13 @@ from env.reward_place import RewardModulePlace
 from env.utils_debug import DebugDraw
 
 class PlaceEnv(gym.Env):
-    metadata = {"render_modes": ["rgb_array"]}
-
     def __init__(self, render_mode="rgb_array", use_gui=False, start_held=True, substage="3A"):
         super().__init__()
         self.config = PlaceEnvConfig()
         self.use_gui = bool(use_gui)
-        self.start_held = bool(start_held)
+        self.start_held = bool(start_held) 
         self.substage = str(substage).upper()
 
-        # Kết nối PyBullet duy nhất 1 lần
         self.cid = p.connect(p.GUI if self.use_gui else p.DIRECT)
         p.setAdditionalSearchPath(pybullet_data.getDataPath(), physicsClientId=self.cid)
         
@@ -46,65 +43,69 @@ class PlaceEnv(gym.Env):
         p.setGravity(0, 0, -9.81, physicsClientId=self.cid)
         p.loadURDF("plane.urdf", physicsClientId=self.cid)
 
-        # 1. Robot & Controller
+        # 1. Khởi tạo Robot tại Home
         self.robot = p.loadURDF("franka_panda/panda.urdf", useFixedBase=True, physicsClientId=self.cid)
         self.ctrl = PandaController(self.robot, physics_client_id=self.cid)
         self.ctrl.reset_home()
-        self.rewarder.ee_link = self.ctrl.EE_LINK
 
-        # 2. Vật thể MÀU HỒNG (Boss yêu cầu)
+        # 2. Vật HỒNG & Target ĐỎ
         self.object_id = p.loadURDF("cube_small.urdf", basePosition=list(self.config.OBJECT_SPAWN_POS), physicsClientId=self.cid)
-        p.changeVisualShape(self.object_id, -1, rgbaColor=[1.0, 0.08, 0.58, 1.0], physicsClientId=self.cid) 
+        p.changeVisualShape(self.object_id, -1, rgbaColor=[1.0, 0.08, 0.58, 1.0], physicsClientId=self.cid)
 
-        # 3. Target Ô MÀU ĐỎ
         self.target_pos = self._sample_target()
+        self.rewarder.set_target(self.target_pos)
         self.target_vis_id = p.loadURDF("cube_small.urdf", basePosition=self.target_pos.tolist(), useFixedBase=True, physicsClientId=self.cid)
         p.changeVisualShape(self.target_vis_id, -1, rgbaColor=[1, 0, 0, 0.5], physicsClientId=self.cid)
 
         if self.start_held:
             self._force_start_holding()
 
+    def _pretty_object_grasp_pose(self):
+        ee_pos, ee_orn = self.ctrl.get_ee_pose()
+        try:
+            left = p.getLinkState(self.robot, self.ctrl.GRIPPER_JOINTS[0], physicsClientId=self.cid)[4]
+            right = p.getLinkState(self.robot, self.ctrl.GRIPPER_JOINTS[1], physicsClientId=self.cid)[4]
+            center = [0.5 * (left[0] + right[0]), 0.5 * (left[1] + right[1]), 0.5 * (left[2] + right[2])]
+            
+            # Bỏ hardcode [0, 0, 0.02], dùng GRASP_OFFSET_LOCAL từ config (mặc định 0,0,0) để khối lọt gọn ngay chính giữa kẹp
+            snap_pos, _ = p.multiplyTransforms(center, ee_orn, self.config.GRASP_OFFSET_LOCAL, [0, 0, 0, 1])
+            return np.array(snap_pos, dtype=np.float32), ee_orn
+        except Exception:
+            snap_pos, _ = p.multiplyTransforms(ee_pos, ee_orn, self.config.GRASP_OFFSET_LOCAL, [0, 0, 0, 1])
+            return np.array(snap_pos, dtype=np.float32), ee_orn
+
     def _attach(self):
-        """Khóa vật chuẩn tư thế vào giữa gripper"""
         if self.hold_cid is not None: return True
-        ee_pos, ee_orn = p.getLinkState(self.robot, self.ctrl.EE_LINK, physicsClientId=self.cid)[4:6]
-        snap_pos, _ = p.multiplyTransforms(ee_pos, ee_orn, [0, 0, -0.015], [0, 0, 0, 1])
-        p.resetBasePositionAndOrientation(self.object_id, snap_pos, ee_orn, physicsClientId=self.cid)
-        
+        target_pos, target_orn = self._pretty_object_grasp_pose()
         for j in range(p.getNumJoints(self.robot)):
             p.setCollisionFilterPair(self.robot, self.object_id, j, -1, 0, physicsClientId=self.cid)
-
+        p.resetBasePositionAndOrientation(self.object_id, target_pos, target_orn, physicsClientId=self.cid)
+        ee_pos, ee_orn = self.ctrl.get_ee_pose()
         inv_ee_p, inv_ee_o = p.invertTransform(ee_pos, ee_orn)
-        loc_p, loc_o = p.multiplyTransforms(inv_ee_p, inv_ee_o, snap_pos, ee_orn)
+        loc_p, loc_o = p.multiplyTransforms(inv_ee_p, inv_ee_o, target_pos, target_orn)
         
         self.hold_cid = p.createConstraint(self.robot, self.ctrl.EE_LINK, self.object_id, -1, p.JOINT_FIXED, [0, 0, 0], loc_p, [0, 0, 0, 1], parentFrameOrientation=loc_o, physicsClientId=self.cid)
+        # Tăng lực khóa lên mức khổng lồ để vật không bị văng khi di chuyển nhanh
+        p.changeConstraint(self.hold_cid, maxForce=50000, physicsClientId=self.cid) 
         return True
 
     def _detach(self):
-        """Thả vật chuẩn xác"""
         if self.hold_cid is not None:
             p.removeConstraint(self.hold_cid, physicsClientId=self.cid)
             self.hold_cid = None
-            for j in range(p.getNumJoints(self.robot)):
-                p.setCollisionFilterPair(self.robot, self.object_id, j, -1, 1, physicsClientId=self.cid)
+            # BỎ QUA việc bật lại va chạm ở đây. Việc bật lại ngay lập tức khi kẹp chưa kịp mở ra vật lý sẽ khiến 2 vật thể bị lồng vào nhau và sinh ra lực đẩy khổng lồ (vật bị nổ văng đi).
+            # Vật vẫn sẽ rớt xuống và va chạm với bàn cũng như các vật thể khác bình thường.
 
     def _force_start_holding(self):
-        """Tự động cầm vật và bay đến trên đầu Target khi Reset"""
         self.ctrl.open_gripper()
-        self._attach()
+        p.stepSimulation(physicsClientId=self.cid)
+        self._attach() 
         for _ in range(20):
             self.ctrl.close_gripper()
-            p.stepSimulation(physicsClientId=self.cid)
-        
-        hover_pos = [self.target_pos[0], self.target_pos[1], self.target_pos[2] + 0.15]
-        self.ctrl.target_pos = hover_pos
-        for _ in range(40):
-            self.ctrl.apply_delta_action(0, 0, 0, self.config.X_RANGE, self.config.Y_RANGE, self.config.Z_RANGE)
             p.stepSimulation(physicsClientId=self.cid)
 
     def step(self, action):
         dx, dy, dz, grip = action
-        
         if grip > 0.5:
             if self.hold_cid is None: self._attach()
             self.ctrl.close_gripper()
@@ -112,15 +113,21 @@ class PlaceEnv(gym.Env):
             self._detach()
             self.ctrl.open_gripper()
 
-        self.ctrl.apply_delta_action(dx * 0.05, dy * 0.05, dz * 0.05, self.config.X_RANGE, self.config.Y_RANGE, self.config.Z_RANGE)
+        self.ctrl.apply_delta_action(
+            dx * self.config.ACTION_SCALE_XY, 
+            dy * self.config.ACTION_SCALE_XY, 
+            dz * self.config.ACTION_SCALE_Z, 
+            self.config.X_RANGE, 
+            self.config.Y_RANGE, 
+            self.config.Z_RANGE
+        )
         for _ in range(self.config.SUBSTEPS): p.stepSimulation(physicsClientId=self.cid)
 
-        # Fix lỗi AttributeError: Vẽ tia vàng hướng xuống (thay thế cho _draw_gripper_direction)
         if self.use_gui:
             self.debug.clear()
-            ee_p, ee_o = p.getLinkState(self.robot, self.ctrl.EE_LINK, physicsClientId=self.cid)[4:6]
-            ray_e, _ = p.multiplyTransforms(ee_p, ee_o, [0, 0, -0.3], [0, 0, 0, 1])
-            self.debug.line(ee_p, ray_e, color=(1, 1, 0), width=4) # Đường kẻ vàng Boss yêu cầu
+            ee_p, ee_o = self.ctrl.get_ee_pose()
+            ray_e, _ = p.multiplyTransforms(ee_p, ee_o, [0, 0, 0.3], [0, 0, 0, 1])
+            self.debug.line(ee_p, ray_e, color=(1, 1, 0), width=4)
 
         rgb = self.camera.render_rgb()
         self.frame_buffer = np.roll(self.frame_buffer, -1, axis=0)
@@ -128,28 +135,69 @@ class PlaceEnv(gym.Env):
         
         reward, done, info = self.rewarder.compute(self.robot, self.object_id, grip, self.hold_cid is not None)
         self.step_count += 1
+        
+        ee_p, _ = self.ctrl.get_ee_pose()
+        info.update({"ee_pos": ee_p, "target_pos": self.target_pos.tolist()})
         return self._pack_obs(), float(reward), bool(done), self.step_count >= self.config.MAX_STEPS, info
 
-    def reset(self, seed=None, options=None):
-        super().reset(seed=seed)
+    def reset(self, seed=None):
+        # FIX CỰC QUAN TRỌNG: Xóa trí nhớ về cái khóa kẹp cũ trước khi setup cảnh mới!
+        self.hold_cid = None 
         self._setup_scene()
         self.step_count = 0
         rgb = self.camera.render_rgb()
         self.frame_buffer = np.repeat(rgb[None, ...], self.config.FRAME_STACK, axis=0)
-        return self._pack_obs(), {}
+        ee_p, _ = self.ctrl.get_ee_pose()
+        info = {"ee_pos": ee_p, "target_pos": self.target_pos.tolist()}
+        return self._pack_obs(), info
 
     def _pack_obs(self): return np.concatenate(list(self.frame_buffer), axis=-1)
     def _sample_target(self): return np.array(self.config.TARGET_POS_3A)
     def close(self): p.disconnect(self.cid)
 
-# --- VÒNG LẶP TEST DUY TRÌ GUI ---
+# ==========================================
+# KỊCH BẢN ĐIỀU KHIỂN CHI TIẾT
+# ==========================================
 if __name__ == "__main__":
-    env = PlaceEnv(use_gui=True, start_held=True, substage="3A")
-    env.reset()
-    print("Boss Hướng chạy thử nhé! Nhấn Ctrl+C để tắt.")
+    env = PlaceEnv(use_gui=True, start_held=True)
+    obs, info = env.reset()
+    state = "MOVE_TO_TARGET"
+    timer = 0
     try:
         while True:
-            env.step([0, 0, 0, 1]) # Đứng yên giữ vật
+            ee_pos = np.array(info["ee_pos"])
+            target_pos = np.array(info["target_pos"])
+            dx, dy, dz, grip = 0.0, 0.0, 0.0, 1.0 # Mặc định cầm vật
+
+            if state == "MOVE_TO_TARGET":
+                dest = target_pos + np.array([0, 0, 0.25])
+                diff = dest - ee_pos
+                dx, dy, dz = diff * 12.0
+                if np.linalg.norm(diff) < 0.02: state = "LOWER_TO_TARGET"
+
+            elif state == "LOWER_TO_TARGET":
+                dest = target_pos + np.array([0, 0, 0.045]) 
+                diff = dest - ee_pos
+                dx, dy, dz = diff * 8.0
+                if np.linalg.norm(diff) < 0.01: 
+                    state = "DROP_OBJECT"
+                    timer = 40
+
+            elif state == "DROP_OBJECT":
+                grip = 0.0 # MỞ GRIPPER THẢ VẬT
+                timer -= 1
+                if timer <= 0: state = "GO_HOME"
+
+            elif state == "GO_HOME":
+                grip = 0.0
+                dest = np.array([0.55, 0.0, 0.25]) 
+                diff = dest - ee_pos
+                dx, dy, dz = diff * 10.0
+
+            obs, reward, done, truncated, info = env.step([dx, dy, dz, grip])
             time.sleep(1./60.)
-    except KeyboardInterrupt:
-        env.close()
+            if truncated or done: 
+                print(">>> Thả thành công! Reset môi trường (vật sẽ được gắn lại vào tay)...")
+                obs, info = env.reset()
+                state = "MOVE_TO_TARGET"
+    except KeyboardInterrupt: env.close()

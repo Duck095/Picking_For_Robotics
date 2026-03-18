@@ -12,7 +12,7 @@ from env.place_env import PlaceEnv
 # =========================
 USE_GUI = True
 N_EPISODES = 10
-SLEEP_SEC = 1 / 2
+SLEEP_SEC = 1 / 30
 
 # Thứ tự ưu tiên mặc định nếu user chỉ bấm Enter
 MODEL_PRIORITY = [
