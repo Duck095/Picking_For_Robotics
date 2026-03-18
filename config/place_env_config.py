@@ -38,13 +38,14 @@ class PlaceEnvConfig:
     TARGET_Z: float = 0.02
 
     # Success params
-    SUCCESS_DIST_3A: float = 0.12
-    SUCCESS_DIST_3B: float = 0.07
-    SUCCESS_DIST_3C: float = 0.06
+    SUCCESS_DIST_3A: float = 0.09
+    SUCCESS_DIST_3B: float = 0.06
+    SUCCESS_DIST_3C: float = 0.03
 
-    TABLE_Z_3A: float = 0.06
-    TABLE_Z_3B: float = 0.06
-    TABLE_Z_3C: float = 0.06
+    # Đặt bằng 0.02 (bằng với tọa độ Z của vật khi nằm ổn định trên mặt phẳng pybullet)
+    TABLE_Z_3A: float = 0.02
+    TABLE_Z_3B: float = 0.02
+    TABLE_Z_3C: float = 0.02
 
     Z_RELEASE_MAX_3A: Optional[float] = None
     Z_RELEASE_MAX_3B: Optional[float] = None
@@ -68,13 +69,13 @@ class PlaceEnvConfig:
 
     # Visual grasp tuning
     RELEASE_COOLDOWN_STEPS: int = 4
-    GRASP_OFFSET_LOCAL: Tuple[float, float, float] = (0.0, 0.0, 0.015)
+    # Dịch vật xuống 3.5cm theo trục Z của kẹp để lọt đúng vào đệm cao su của ngón tay thay vì lún vào lòng bàn tay
+    GRASP_OFFSET_LOCAL: Tuple[float, float, float] = (0.0, 0.0, 0.035)
     GRASP_DIST_THRESH: float = 0.08
     GRASP_XY_THRESH: float = 0.06
     GRASP_Z_THRESH: float = 0.06
     GRASP_FORCE: float = 8000.0
-    RELEASE_COOLDOWN_STEPS = 8
-    
+       
     def get_success_params(self, substage: str):
         substage = str(substage).upper()
 
