@@ -32,10 +32,10 @@ class PlaceEnvConfig:
 
     OBJECT_SPAWN_POS: Tuple[float, float, float] = (0.55, 0.0, 0.02)
 
-    TARGET_POS_3A: Tuple[float, float, float] = (0.45, 0.20, 0.02)
+    TARGET_POS_3A: Tuple[float, float, float] = (0.45, 0.20, 0.0)
     TARGET_X_RANGE_3BC: Tuple[float, float] = (0.40, 0.55)
     TARGET_Y_RANGE_3BC: Tuple[float, float] = (0.10, 0.30)
-    TARGET_Z: float = 0.02
+    TARGET_Z: float = 0.0
 
     # Success params
     SUCCESS_DIST_3A: float = 0.09

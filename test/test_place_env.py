@@ -41,7 +41,7 @@ def choose_model(available_models):
     choice = input("Lựa chọn của bạn: ").strip().lower()
 
     if choice == "r":
-        return None, "random"
+        return None, "ranrdom"
 
     if choice == "":
         return available_models[0], "model"
@@ -115,6 +115,12 @@ def main():
         while not (done or truncated):
             if test_mode == "model":
                 action, _ = model.predict(obs, deterministic=True)
+                
+                # Debug: Báo cho Boss biết nếu AI tự ý quyết định nhả kẹp (grip <= 0.5)
+                grip_val = float(action[0][3] if len(action.shape) > 1 else action[3])
+                if grip_val <= 0.5 and step == 0:
+                    print(f"\n>>> [AI ALERT] Cảnh báo: Model AI ra lệnh NHẢ KẸP (grip={grip_val:.2f}) ngay từ bước đầu tiên! Vật sẽ bị rớt (Do model chưa được train kỹ).")
+
                 obs, rewards, dones, infos = env.step(action)
 
                 reward = float(rewards[0])
@@ -123,6 +129,8 @@ def main():
                 info = infos[0]
             else:
                 action = env.action_space.sample()
+                # LUÔN ÉP tay kẹp đóng chặt (grip = 1.0) khi test ngẫu nhiên để vật không bị rơi
+                action[3] = 1.0
                 obs, reward, done, truncated, info = env.step(action)
 
             ep_reward += reward

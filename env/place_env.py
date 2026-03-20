@@ -56,23 +56,19 @@ class PlaceEnv(gym.Env):
         self.rewarder.set_target(self.target_pos)
         self.target_vis_id = p.loadURDF("cube_small.urdf", basePosition=self.target_pos.tolist(), useFixedBase=True, physicsClientId=self.cid)
         p.changeVisualShape(self.target_vis_id, -1, rgbaColor=[1, 0, 0, 0.5], physicsClientId=self.cid)
+        # Tắt hoàn toàn va chạm vật lý của khối target để vật có thể rơi xuyên qua chạm mặt bàn
+        p.setCollisionFilterGroupMask(self.target_vis_id, -1, collisionFilterGroup=0, collisionFilterMask=0, physicsClientId=self.cid)
 
         if self.start_held:
             self._force_start_holding()
 
     def _pretty_object_grasp_pose(self):
         ee_pos, ee_orn = self.ctrl.get_ee_pose()
-        try:
-            left = p.getLinkState(self.robot, self.ctrl.GRIPPER_JOINTS[0], physicsClientId=self.cid)[4]
-            right = p.getLinkState(self.robot, self.ctrl.GRIPPER_JOINTS[1], physicsClientId=self.cid)[4]
-            center = [0.5 * (left[0] + right[0]), 0.5 * (left[1] + right[1]), 0.5 * (left[2] + right[2])]
-            
-            # Bỏ hardcode [0, 0, 0.02], dùng GRASP_OFFSET_LOCAL từ config (mặc định 0,0,0) để khối lọt gọn ngay chính giữa kẹp
-            snap_pos, _ = p.multiplyTransforms(center, ee_orn, self.config.GRASP_OFFSET_LOCAL, [0, 0, 0, 1])
-            return np.array(snap_pos, dtype=np.float32), ee_orn
-        except Exception:
-            snap_pos, _ = p.multiplyTransforms(ee_pos, ee_orn, self.config.GRASP_OFFSET_LOCAL, [0, 0, 0, 1])
-            return np.array(snap_pos, dtype=np.float32), ee_orn
+        # Vị trí End-Effector (link 11 - grasptarget) vốn dĩ đã được thiết kế 
+        # nằm chính giữa điểm tiếp xúc của 2 phần đệm kẹp.
+        # Chúng ta khóa thẳng tâm khối lập phương vào đúng vị trí này để kẹp hoàn hảo.
+        snap_pos, _ = p.multiplyTransforms(ee_pos, ee_orn, [0, 0, 0], [0, 0, 0, 1])
+        return np.array(snap_pos, dtype=np.float32), ee_orn
 
     def _attach(self):
         if self.hold_cid is not None: return True
@@ -84,7 +80,19 @@ class PlaceEnv(gym.Env):
         inv_ee_p, inv_ee_o = p.invertTransform(ee_pos, ee_orn)
         loc_p, loc_o = p.multiplyTransforms(inv_ee_p, inv_ee_o, target_pos, target_orn)
         
-        self.hold_cid = p.createConstraint(self.robot, self.ctrl.EE_LINK, self.object_id, -1, p.JOINT_FIXED, [0, 0, 0], loc_p, [0, 0, 0, 1], parentFrameOrientation=loc_o, physicsClientId=self.cid)
+        self.hold_cid = p.createConstraint(
+            parentBodyUniqueId=self.robot,
+            parentLinkIndex=self.ctrl.EE_LINK,
+            childBodyUniqueId=self.object_id,
+            childLinkIndex=-1,
+            jointType=p.JOINT_FIXED,
+            jointAxis=[0, 0, 0],
+            parentFramePosition=loc_p,
+            childFramePosition=[0, 0, 0],
+            parentFrameOrientation=loc_o,
+            childFrameOrientation=[0, 0, 0, 1],
+            physicsClientId=self.cid
+        )
         # Tăng lực khóa lên mức khổng lồ để vật không bị văng khi di chuyển nhanh
         p.changeConstraint(self.hold_cid, maxForce=50000, physicsClientId=self.cid) 
         return True
@@ -101,17 +109,19 @@ class PlaceEnv(gym.Env):
         p.stepSimulation(physicsClientId=self.cid)
         self._attach() 
         for _ in range(20):
-            self.ctrl.close_gripper()
+            self.ctrl.close_gripper(width=0.024)
             p.stepSimulation(physicsClientId=self.cid)
 
     def step(self, action):
         dx, dy, dz, grip = action
         if grip > 0.5:
-            if self.hold_cid is None: self._attach()
-            self.ctrl.close_gripper()
+            if self.hold_cid is None and not getattr(self, "has_dropped", False): 
+                self._attach()
+            self.ctrl.close_gripper(width=0.024)
         else:
             self._detach()
             self.ctrl.open_gripper()
+            self.has_dropped = True
 
         self.ctrl.apply_delta_action(
             dx * self.config.ACTION_SCALE_XY, 
@@ -143,6 +153,7 @@ class PlaceEnv(gym.Env):
     def reset(self, seed=None):
         # FIX CỰC QUAN TRỌNG: Xóa trí nhớ về cái khóa kẹp cũ trước khi setup cảnh mới!
         self.hold_cid = None 
+        self.has_dropped = False
         self._setup_scene()
         self.step_count = 0
         rgb = self.camera.render_rgb()
@@ -167,21 +178,27 @@ if __name__ == "__main__":
         while True:
             ee_pos = np.array(info["ee_pos"])
             target_pos = np.array(info["target_pos"])
+            obj_pos, _ = p.getBasePositionAndOrientation(env.object_id, physicsClientId=env.cid)
+            bottom_z = obj_pos[2] - 0.025 # Chiều cao khối hộp 5cm -> nửa là 2.5cm
+            
             dx, dy, dz, grip = 0.0, 0.0, 0.0, 1.0 # Mặc định cầm vật
+            target_top_z = target_pos[2] + 0.025 # Mặt trên của hộp đỏ
 
             if state == "MOVE_TO_TARGET":
-                dest = target_pos + np.array([0, 0, 0.25])
+                # Bay ngang qua phía trên target
+                dest = np.array([target_pos[0], target_pos[1], target_top_z + 0.15])
                 diff = dest - ee_pos
                 dx, dy, dz = diff * 12.0
-                if np.linalg.norm(diff) < 0.02: state = "LOWER_TO_TARGET"
+                if np.linalg.norm(diff) < 0.015: state = "LOWER_TO_TARGET"
 
             elif state == "LOWER_TO_TARGET":
-                dest = target_pos + np.array([0, 0, 0.045]) 
+                # Khom tay hạ thấp để đáy vật chạm sát lên mặt trên khối đích (lấy đà lún thêm 5mm)
+                dest = np.array([target_pos[0], target_pos[1], target_top_z + 0.020]) 
                 diff = dest - ee_pos
-                dx, dy, dz = diff * 8.0
-                if np.linalg.norm(diff) < 0.01: 
+                dx, dy, dz = diff * 6.0 # Hạ xuống nhẹ nhàng cho đẹp
+                if bottom_z <= target_top_z + 0.002: # Đáy vật chạm đích (chỉ còn cách <= 2mm) thì mới thả
                     state = "DROP_OBJECT"
-                    timer = 40
+                    timer = 20
 
             elif state == "DROP_OBJECT":
                 grip = 0.0 # MỞ GRIPPER THẢ VẬT
@@ -197,7 +214,7 @@ if __name__ == "__main__":
             obs, reward, done, truncated, info = env.step([dx, dy, dz, grip])
             time.sleep(1./60.)
             if truncated or done: 
-                print(">>> Thả thành công! Reset môi trường (vật sẽ được gắn lại vào tay)...")
+                print(">>> Thả thành công! Reset môi trường...")
                 obs, info = env.reset()
                 state = "MOVE_TO_TARGET"
     except KeyboardInterrupt: env.close()
