@@ -150,7 +150,8 @@ class PlaceEnv(gym.Env):
         info.update({"ee_pos": ee_p, "target_pos": self.target_pos.tolist()})
         return self._pack_obs(), float(reward), bool(done), self.step_count >= self.config.MAX_STEPS, info
 
-    def reset(self, seed=None):
+    def reset(self, seed=None, options=None):
+        super().reset(seed=seed)
         # FIX CỰC QUAN TRỌNG: Xóa trí nhớ về cái khóa kẹp cũ trước khi setup cảnh mới!
         self.hold_cid = None 
         self.has_dropped = False
@@ -164,7 +165,11 @@ class PlaceEnv(gym.Env):
 
     def _pack_obs(self): return np.concatenate(list(self.frame_buffer), axis=-1)
     def _sample_target(self): return np.array(self.config.TARGET_POS_3A)
-    def close(self): p.disconnect(self.cid)
+    def close(self):
+        try:
+            p.disconnect(self.cid)
+        except Exception:
+            pass
 
 # ==========================================
 # KỊCH BẢN ĐIỀU KHIỂN CHI TIẾT
