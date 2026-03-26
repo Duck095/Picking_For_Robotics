@@ -1,191 +1,359 @@
-# env/reach_env.py
+from __future__ import annotations
+
+from typing import Any, Dict, Optional, Tuple
+
 import gymnasium as gym
-from gymnasium import spaces
 import numpy as np
 import pybullet as p
 import pybullet_data
-import random
-import math
+from gymnasium import spaces
 
-from config.reach_env_config import EnvConfig
-from env.camera import Camera
+from config.reach_env_config import ReachEnvConfig, build_reach_config
 from env.panda_controller import PandaController
-from env.reward_reach import ReachReward
-from env.utils_debug import DebugDraw
+from env.reward_reach import RewardReach
 
 
 class ReachEnv(gym.Env):
-    metadata = {"render_modes": ["rgb_array"]}
+    metadata = {"render_modes": ["human"]}
 
-    def __init__(self, use_gui: bool = False, config=None):
+    def __init__(self, cfg: Optional[ReachEnvConfig] = None):
         super().__init__()
-        
-        if config is None:
-            config = EnvConfig()
-    
-        self.cfg = config or EnvConfig()
-        self.use_gui = bool(use_gui)
+        self.cfg: ReachEnvConfig = cfg if cfg is not None else build_reach_config("1A")
 
-        # ✅ lưu physics client id
-        self.cid = p.connect(p.GUI) if self.use_gui else p.connect(p.DIRECT)
+        self.client_id: Optional[int] = None
+        self.robot: Optional[PandaController] = None
+        self.plane_id: Optional[int] = None
+        self.table_id: Optional[int] = None
+        self.object_id: Optional[int] = None
 
-        p.setAdditionalSearchPath(pybullet_data.getDataPath(), physicsClientId=self.cid)
-        p.setGravity(0, 0, -9.81, physicsClientId=self.cid)
-        p.setTimeStep(1.0 / self.cfg.physics_hz, physicsClientId=self.cid)
-
-        self.observation_space = spaces.Box(
-            low=0, high=255,
-            shape=(self.cfg.img_size, self.cfg.img_size, 3 * self.cfg.frame_stack),
-            dtype=np.uint8,
-        )
-
-        self.action_space = spaces.Box(
-            low=np.array([-1, -1, -1], dtype=np.float32),
-            high=np.array([1, 1, 1], dtype=np.float32),
-            dtype=np.float32,
-        )
-
-        # ✅ camera đúng world + tiny renderer khi headless + crop ROI
-        self.camera = Camera(
-            img_size=self.cfg.img_size,
-            physics_client_id=self.cid,
-            use_gui=self.use_gui,
-            use_crop=True,
-            crop_box=(16, 112, 16, 112),
-        )
-
-        self.debug = DebugDraw(physics_client_id=self.cid)
-
-        self.robot_id = None
-        self.ctrl = None
-        self.obj_id = None
-        self.rewarder = None
-
-        self.frame_buf = None
         self.step_count = 0
+        self.episode_count = 0
 
-        self._setup_scene()
+        self.object_pos = np.zeros(3, dtype=np.float32)
+        self.object_yaw = 0.0
+        self.target_pos = np.zeros(3, dtype=np.float32)
 
-    def _sample_obj_xy(self):
-        if self.cfg.stage1_substage == "1A":
-            xr, yr = self.cfg.stage1a_x, self.cfg.stage1a_y
-        elif self.cfg.stage1_substage == "1B":
-            xr, yr = self.cfg.stage1b_x, self.cfg.stage1b_y
-        elif self.cfg.stage1_substage == "1C":
-            xr, yr = self.cfg.stage1c_x, self.cfg.stage1c_y
+        self.prev_ee_pos = np.zeros(3, dtype=np.float32)
+        self.prev_action = np.zeros(3, dtype=np.float32)
+        self.last_phase = "far"
+
+        self.rewarder = RewardReach(self.cfg)
+
+        self._connect()
+        self._build_static_world()
+        self._build_robot()
+
+        self.action_space = spaces.Box(low=-1.0, high=1.0, shape=(3,), dtype=np.float32)
+        obs_dim = self._get_obs_dim()
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(obs_dim,), dtype=np.float32)
+
+    def _connect(self) -> None:
+        self.client_id = p.connect(p.GUI if self.cfg.sim.use_gui else p.DIRECT)
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())
+        p.setGravity(0.0, 0.0, -9.81)
+        p.setTimeStep(1.0 / float(self.cfg.sim.physics_hz))
+
+    def _build_static_world(self) -> None:
+        self.plane_id = p.loadURDF("plane.urdf")
+        table_half = [0.45, 0.60, 0.02]
+        table_pos = [0.55, 0.0, -0.02]
+        col_id = p.createCollisionShape(p.GEOM_BOX, halfExtents=table_half)
+        vis_id = p.createVisualShape(p.GEOM_BOX, halfExtents=table_half, rgbaColor=[0.75, 0.75, 0.75, 1.0])
+        self.table_id = p.createMultiBody(baseMass=0.0, baseCollisionShapeIndex=col_id, baseVisualShapeIndex=vis_id, basePosition=table_pos)
+
+    def _build_robot(self) -> None:
+        self.robot = PandaController(client_id=self.client_id, use_gui=self.cfg.sim.use_gui, workspace=self.cfg.workspace)
+
+    def _remove_object(self) -> None:
+        if self.object_id is not None:
+            try:
+                p.removeBody(self.object_id)
+            except Exception:
+                pass
+            self.object_id = None
+
+    def _sample_object_pose(self) -> Tuple[np.ndarray, float]:
+        spawn_cfg = self.cfg.spawn
+        if spawn_cfg.spawn_mode == "fixed":
+            pos = np.array(spawn_cfg.fixed_pose_xyz, dtype=np.float32)
+        elif spawn_cfg.spawn_mode == "random":
+            pos = np.array([
+                np.random.uniform(spawn_cfg.roi_x[0], spawn_cfg.roi_x[1]),
+                np.random.uniform(spawn_cfg.roi_y[0], spawn_cfg.roi_y[1]),
+                spawn_cfg.object_z,
+            ], dtype=np.float32)
         else:
-            raise ValueError(f"Unknown stage1_substage: {self.cfg.stage1_substage}")
+            raise ValueError(f"spawn_mode không hợp lệ: {spawn_cfg.spawn_mode}")
+        yaw = np.random.uniform(spawn_cfg.yaw_range[0], spawn_cfg.yaw_range[1]) if spawn_cfg.random_yaw else 0.0
+        return pos, float(yaw)
 
-        x = np.random.uniform(*xr)
-        y = np.random.uniform(*yr)
-        return x, y
+    def _spawn_object(self) -> None:
+        self._remove_object()
+        self.object_pos, self.object_yaw = self._sample_object_pose()
+        color_name = np.random.choice(self.cfg.spawn.object_colors)
+        color_map = {
+            "red": [1.0, 0.2, 0.2, 1.0],
+            "green": [0.2, 1.0, 0.2, 1.0],
+            "blue": [0.2, 0.4, 1.0, 1.0],
+            "yellow": [1.0, 1.0, 0.2, 1.0],
+        }
+        rgba = color_map.get(color_name, [1.0, 0.2, 0.2, 1.0])
+        half_extents = [0.02, 0.02, 0.02]
+        col_id = p.createCollisionShape(p.GEOM_BOX, halfExtents=half_extents)
+        vis_id = p.createVisualShape(p.GEOM_BOX, halfExtents=half_extents, rgbaColor=rgba)
+        orn = p.getQuaternionFromEuler([0.0, 0.0, self.object_yaw])
+        self.object_id = p.createMultiBody(baseMass=0.2, baseCollisionShapeIndex=col_id, baseVisualShapeIndex=vis_id, basePosition=self.object_pos.tolist(), baseOrientation=orn)
 
-    def _setup_scene(self):
-        p.resetSimulation(physicsClientId=self.cid)
-        p.setAdditionalSearchPath(pybullet_data.getDataPath(), physicsClientId=self.cid)
-        p.setGravity(0, 0, -9.81, physicsClientId=self.cid)
-        p.setTimeStep(1.0 / self.cfg.physics_hz, physicsClientId=self.cid)
+    def _compute_hover_target(self) -> np.ndarray:
+        if self.cfg.target.use_hover_target:
+            return np.array([self.object_pos[0], self.object_pos[1], self.cfg.target.z_hover], dtype=np.float32)
+        return self.object_pos.copy()
 
-        p.loadURDF("plane.urdf", physicsClientId=self.cid)
-        self.robot_id = p.loadURDF("franka_panda/panda.urdf", useFixedBase=True, physicsClientId=self.cid)
+    def _get_obs_dim(self) -> int:
+        dim = 12
+        if self.cfg.include_joint_state:
+            dim += 7
+        if self.cfg.include_joint_velocity:
+            dim += 7
+        if self.cfg.include_prev_action:
+            dim += 3
+        return dim
 
-        self.ctrl = PandaController(self.robot_id, physics_client_id=self.cid, grip_yaw=math.pi / 2)
-        self.ctrl.reset_home()
+    def _apply_obs_noise(self, arr: np.ndarray) -> np.ndarray:
+        if not self.cfg.noise.enable_obs_noise:
+            return arr
+        noise = np.random.normal(0.0, self.cfg.noise.pos_noise_std, size=arr.shape).astype(np.float32)
+        return arr + noise
 
-        x, y = self._sample_obj_xy()
-        self.obj_id = p.loadURDF("cube_small.urdf", basePosition=[x, y, self.cfg.obj_z], physicsClientId=self.cid)
+    def _get_obs(self) -> np.ndarray:
+        assert self.robot is not None
+        ee_pos, _ = self.robot.get_ee_pose()
+        joint_q = self.robot.get_arm_joint_positions()
+        joint_dq = self.robot.get_arm_joint_velocities()
+        delta = self.target_pos - ee_pos
+        dist = np.linalg.norm(delta)
+        xy_dist = np.linalg.norm(delta[:2])
+        z_dist = abs(float(delta[2]))
+        obs_parts = [
+            ee_pos.astype(np.float32),
+            self.target_pos.astype(np.float32),
+            delta.astype(np.float32),
+            np.array([dist], dtype=np.float32),
+            np.array([xy_dist], dtype=np.float32),
+            np.array([z_dist], dtype=np.float32),
+        ]
+        if self.cfg.include_joint_state:
+            obs_parts.append(joint_q.astype(np.float32))
+        if self.cfg.include_joint_velocity:
+            obs_parts.append(joint_dq.astype(np.float32))
+        if self.cfg.include_prev_action:
+            obs_parts.append(self.prev_action.astype(np.float32))
+        return self._apply_obs_noise(np.concatenate(obs_parts, axis=0).astype(np.float32))
 
-        obj_pos, _ = p.getBasePositionAndOrientation(self.obj_id, physicsClientId=self.cid)
-        self.ctrl.target_pos = [obj_pos[0], obj_pos[1], 0.25]
+    def _compute_dist_metrics(self) -> Tuple[float, float, float]:
+        assert self.robot is not None
+        ee_pos, _ = self.robot.get_ee_pose()
+        delta = self.target_pos - ee_pos
+        return float(np.linalg.norm(delta)), float(np.linalg.norm(delta[:2])), abs(float(delta[2]))
 
-        # ✅ chọn success_dist theo substage
-        if self.cfg.stage1_substage == "1A":
-            success_dist = self.cfg.success_dist_1a
-        elif self.cfg.stage1_substage == "1B":
-            success_dist = self.cfg.success_dist_1b
-        elif self.cfg.stage1_substage == "1C":
-            success_dist = self.cfg.success_dist_1c
-        else:
-            raise ValueError(f"Unknown stage1_substage: {self.cfg.stage1_substage}")
+    def _check_success(self) -> bool:
+        dist, _, _ = self._compute_dist_metrics()
+        return dist < float(self.cfg.target.success_dist)
 
-        # ✅ reward dùng đúng EE link controller tìm ra
-        self.rewarder = ReachReward(
-            ee_link=self.ctrl.EE_LINK,
-            success_dist=success_dist,
-            dist_weight=self.cfg.dist_weight,
-            time_penalty=self.cfg.time_penalty,
-            success_bonus=self.cfg.success_bonus,
-            physics_client_id=self.cid,
-            delta_clip=getattr(self.cfg, "delta_clip", 0.04),  # fallback nếu config chưa có
-        )
+    def _check_truncated(self) -> bool:
+        return self.step_count >= int(self.cfg.sim.max_steps)
 
-        for _ in range(30):
-            p.stepSimulation(physicsClientId=self.cid)
+    def _check_workspace_violated(self) -> bool:
+        assert self.robot is not None
+        ee_pos, _ = self.robot.get_ee_pose()
+        return not self.robot.is_inside_workspace(ee_pos)
 
-    def _obs(self):
-        return np.concatenate(list(self.frame_buf), axis=2)
+    def _is_xy_aligned(self) -> bool:
+        _, xy_dist, _ = self._compute_dist_metrics()
+        return xy_dist <= float(self.cfg.target.xy_align_threshold)
 
-    def reset(self, seed=None, options=None):
+    def _get_phase(self, dist: float, xy_dist: float, z_dist: float) -> str:
+        acfg = self.cfg.action
+        tcfg = self.cfg.target
+        if dist <= tcfg.success_dist * 1.25:
+            return "settle"
+        if xy_dist <= tcfg.xy_align_threshold and z_dist > acfg.descend_z_gate:
+            return "descend"
+        if xy_dist <= tcfg.xy_align_threshold:
+            return "near_aligned"
+        if dist <= acfg.near_dist:
+            return "align"
+        return "far"
+
+    def _scale_action(self, action: np.ndarray) -> Tuple[float, float, float, str]:
+        if self.cfg.action.clip_action:
+            action = np.clip(action, -1.0, 1.0)
+
+        dist, xy_dist, z_dist = self._compute_dist_metrics()
+        phase = self._get_phase(dist, xy_dist, z_dist)
+        substage = self.cfg.substage
+
+        xy_scale = float(self.cfg.action.action_scale_xy)
+        z_scale = float(self.cfg.action.action_scale_z)
+
+        if substage == "1A":
+            if phase == "align":
+                xy_scale *= 0.90
+                z_scale *= 0.90
+            elif phase == "descend":
+                xy_scale *= 0.55
+                z_scale *= 1.10
+            elif phase == "near_aligned":
+                xy_scale *= 0.50
+                z_scale *= 0.85
+            elif phase == "settle":
+                xy_scale *= 0.40
+                z_scale *= 0.60
+        elif substage == "1B":
+            if phase == "align":
+                xy_scale *= 0.80
+                z_scale *= 0.85
+            elif phase == "descend":
+                xy_scale *= 0.50
+                z_scale *= 0.95
+            elif phase == "near_aligned":
+                xy_scale *= 0.42
+                z_scale *= 0.72
+            elif phase == "settle":
+                xy_scale *= 0.32
+                z_scale *= 0.50
+        else:  # 1C
+            if phase == "align":
+                xy_scale *= 0.75
+                z_scale *= 0.80
+            elif phase == "descend":
+                xy_scale *= 0.42
+                z_scale *= 0.70
+            elif phase == "near_aligned":
+                xy_scale *= 0.35
+                z_scale *= 0.55
+            elif phase == "settle":
+                xy_scale *= 0.25
+                z_scale *= 0.40
+
+        dx = float(action[0]) * xy_scale
+        dy = float(action[1]) * xy_scale
+        dz = float(action[2]) * z_scale
+        return dx, dy, dz, phase
+
+    def _apply_action(self, action: np.ndarray) -> None:
+        assert self.robot is not None
+        alpha = float(self.cfg.action.action_smoothing)
+        alpha = min(max(alpha, 0.0), 0.95)
+        smoothed = (1.0 - alpha) * action + alpha * self.prev_action
+        smoothed = smoothed.astype(np.float32)
+        dx, dy, dz, phase = self._scale_action(smoothed)
+        self.last_phase = phase
+        self.robot.move_ee_delta(dx=dx, dy=dy, dz=dz, substeps=self.cfg.sim.substeps)
+
+    def _debug_draw(self) -> None:
+        if not self.cfg.sim.use_gui:
+            return
+        if not self.cfg.debug.draw_target and not self.cfg.debug.draw_ee_path:
+            return
+        assert self.robot is not None
+        ee_pos, _ = self.robot.get_ee_pose()
+        if self.cfg.debug.draw_target:
+            p.addUserDebugText("hover_target", self.target_pos.tolist(), [1, 0, 0], lifeTime=0.05)
+        if self.cfg.debug.draw_ee_path:
+            p.addUserDebugLine(ee_pos.tolist(), self.target_pos.tolist(), [0, 1, 0], lineWidth=2.0, lifeTime=0.05)
+
+    def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
-        self._setup_scene()
+        assert self.robot is not None
+        self.step_count = 0
+        self.episode_count += 1
+        self.prev_action = np.zeros(3, dtype=np.float32)
+        self.last_phase = "far"
         self.rewarder.reset()
 
-        self.step_count = 0
-        rgb = self.camera.render_rgb()
-        self.frame_buf = np.repeat(rgb[None, ...], self.cfg.frame_stack, axis=0)
-        return self._obs(), {}
+        self.robot.reset_home(open_gripper=True)
+        self._spawn_object()
+        self.target_pos = self._compute_hover_target()
+        ee_pos, _ = self.robot.get_ee_pose()
+        self.prev_ee_pos = ee_pos.astype(np.float32)
+        obs = self._get_obs()
+        dist, xy_dist, z_dist = self._compute_dist_metrics()
+        info = {
+            "episode_idx": self.episode_count,
+            "step": self.step_count,
+            "object_pos": self.object_pos.copy(),
+            "target_pos": self.target_pos.copy(),
+            "dist": dist,
+            "xy_dist": xy_dist,
+            "z_dist": z_dist,
+            "success": False,
+            "truncated": False,
+            "xy_aligned": xy_dist <= float(self.cfg.target.xy_align_threshold),
+            "phase": self._get_phase(dist, xy_dist, z_dist),
+            "substage": self.cfg.substage,
+        }
+        return obs, info
 
-    def step(self, action):
-        # ✅ clip action
-        action = np.asarray(action, dtype=np.float32)
-        action = np.clip(action, self.action_space.low, self.action_space.high)
-        dx, dy, dz = action
+    def step(self, action: np.ndarray):
+        assert self.robot is not None
+        action = np.asarray(action, dtype=np.float32).reshape(3,)
+        prev_ee_pos, _ = self.robot.get_ee_pose()
+        self.prev_ee_pos = prev_ee_pos.astype(np.float32)
 
-        dx = float(dx) * self.cfg.action_scale_xy
-        dy = float(dy) * self.cfg.action_scale_xy
-        dz = float(dz) * self.cfg.action_scale_z
+        self._apply_action(action)
+        self.step_count += 1
+        curr_ee_pos, _ = self.robot.get_ee_pose()
 
-        self.ctrl.apply_delta_action(
-            dx, dy, dz,
-            x_range=self.cfg.x_range,
-            y_range=self.cfg.y_range,
-            z_range=self.cfg.z_range,
+        success = self._check_success()
+        truncated = self._check_truncated()
+        workspace_violated = self._check_workspace_violated()
+        xy_aligned = self._is_xy_aligned()
+
+        reward, reward_info = self.rewarder.compute(
+            prev_ee_pos=self.prev_ee_pos,
+            curr_ee_pos=curr_ee_pos.astype(np.float32),
+            target_pos=self.target_pos.astype(np.float32),
+            action=action,
+            success=success,
+            truncated=truncated,
+            xy_aligned=xy_aligned,
+            workspace_violated=workspace_violated,
+            prev_action=self.prev_action.copy(),
         )
 
-        for _ in range(self.cfg.substeps):
-            p.stepSimulation(physicsClientId=self.cid)
+        self.prev_action = action.copy()
+        obs = self._get_obs()
+        terminated = bool(success)
+        dist, xy_dist, z_dist = self._compute_dist_metrics()
 
-        rgb = self.camera.render_rgb()
-        self.frame_buf = np.roll(self.frame_buf, -1, axis=0)
-        self.frame_buf[-1] = rgb
-
-        reward, terminated, info = self.rewarder.compute(self.robot_id, self.obj_id)
-
-        self.step_count += 1
-        truncated = self.step_count >= self.cfg.max_steps
-
-        if self.use_gui:
-            self.debug.clear()
-            ee_pos = p.getLinkState(self.robot_id, self.ctrl.EE_LINK, physicsClientId=self.cid)[4]
-            ee_orn = p.getLinkState(self.robot_id, self.ctrl.EE_LINK, physicsClientId=self.cid)[5]
-            obj_pos, _ = p.getBasePositionAndOrientation(self.obj_id, physicsClientId=self.cid)
-            self.debug.axes(ee_pos, ee_orn, life=0.2, width=4)
-            self.debug.point(ee_pos, color=(1, 0, 1), text="TCP", life=0.2)
-            self.debug.point(obj_pos, color=(1, 1, 0), text="OBJ", life=0.2)
-            self.debug.line(ee_pos, obj_pos, life=0.2)
-
-
-        info["step_count"] = self.step_count
-        info["stage1_substage"] = self.cfg.stage1_substage
-        info["target_ee_pos"] = [float(x) for x in self.ctrl.target_pos]
-        info["action"] = [float(x) for x in action.tolist()]
-        info["terminated"] = bool(terminated)
-        info["truncated"] = bool(truncated)
-
-        return self._obs(), float(reward), bool(terminated), bool(truncated), info
+        info: Dict[str, Any] = {
+            "episode_idx": self.episode_count,
+            "step": self.step_count,
+            "object_pos": self.object_pos.copy(),
+            "target_pos": self.target_pos.copy(),
+            "dist": dist,
+            "xy_dist": xy_dist,
+            "z_dist": z_dist,
+            "success": success,
+            "truncated": truncated,
+            "xy_aligned": xy_aligned,
+            "workspace_violated": workspace_violated,
+            "phase": self.last_phase,
+            "substage": self.cfg.substage,
+        }
+        info.update(reward_info)
+        self._debug_draw()
+        return obs, float(reward), terminated, bool(truncated), info
 
     def close(self):
         try:
-            p.disconnect(self.cid)
+            if self.object_id is not None:
+                p.removeBody(self.object_id)
+                self.object_id = None
+        except Exception:
+            pass
+        try:
+            p.disconnect()
         except Exception:
             pass

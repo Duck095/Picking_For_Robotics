@@ -1,207 +1,196 @@
-# test/test_reach_env.py
-import sys
+from __future__ import annotations
+
 import os
 import glob
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
 import time
+from typing import List, Optional, Tuple
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import numpy as np
+from stable_baselines3 import PPO
+
+from config.reach_env_config import build_reach_config
 from env.reach_env import ReachEnv
-from config.reach_env_config import EnvConfig
 
-# =========================
-# CONFIG
-# =========================
+
+# ============================================================
+# TEST CONFIG
+# ============================================================
 USE_GUI = True
-N_EPISODES = 10
-SLEEP_SEC = 1.0 if USE_GUI else 0.0
+N_EPISODES = 5
+SLEEP_SEC = 0.1 if USE_GUI else 0.0
+DETERMINISTIC = True
 
-# Thứ tự ưu tiên mặc định nếu user chỉ bấm Enter
-MODEL_PRIORITY = [
-    "models/stage1_reach_1C.zip",
-    "models/stage1_reach_1C_latest.zip",
-    "models/stage1_reach_1B.zip",
-    "models/stage1_reach_1B_latest.zip",
-    "models/stage1_reach_1A.zip",
-    "models/stage1_reach_1A_latest.zip",
-]
+MODEL_DIR = "models"
 
 
-def get_available_models():
+# ============================================================
+# MODEL DISCOVERY
+# ============================================================
+def get_available_models() -> List[str]:
     models = []
 
-    # 1) file chính
-    for path in MODEL_PRIORITY:
-        if os.path.exists(path):
-            models.append(path)
+    priority = [
+        "models/stage1_reach_1C.zip",
+        "models/stage1_reach_1C_latest.zip",
+        "models/stage1_reach_1B.zip",
+        "models/stage1_reach_1B_latest.zip",
+        "models/stage1_reach_1A.zip",
+        "models/stage1_reach_1A_latest.zip",
+    ]
 
-    # 2) checkpoint 1B
-    ckpt_1b = sorted(
-        glob.glob("models/checkpoints_stage1_1B/*.zip"),
-        reverse=True
-    )
+    for p in priority:
+        if os.path.exists(p):
+            models.append(p)
 
-    # 3) checkpoint 1A
-    ckpt_1a = sorted(
-        glob.glob("models/checkpoints_stage1_1A/*.zip"),
-        reverse=True
-    )
-
-    models.extend(ckpt_1b)
-    models.extend(ckpt_1a)
+    # checkpoints
+    for sub in ["1C", "1B", "1A"]:
+        ckpt = glob.glob(f"models/checkpoints_stage1_{sub}/*.zip")
+        ckpt = sorted(ckpt, reverse=True)
+        models.extend(ckpt)
 
     return models
 
 
-def choose_model(available_models):
-    print("\n[INFO] Available trained models:")
-    for i, path in enumerate(available_models, start=1):
-        print(f"  {i}. {path}")
+def choose_model(models: List[str]) -> Tuple[Optional[str], str]:
+    print("\nAvailable models:")
+    for i, m in enumerate(models):
+        print(f"{i+1}. {m}")
 
-    print("\nChọn cách test:")
-    print("  - Nhập số để chọn model cụ thể")
-    print("  - Bấm Enter để dùng model ưu tiên cao nhất")
-    print("  - Nhập 'r' để chạy random test")
-
-    choice = input("Lựa chọn của bạn: ").strip().lower()
+    print("\nEnter number / Enter for best / r for random")
+    choice = input("> ").strip().lower()
 
     if choice == "r":
         return None, "random"
 
     if choice == "":
-        return available_models[0], "model"
+        return models[0], "model"
 
     if choice.isdigit():
         idx = int(choice) - 1
-        if 0 <= idx < len(available_models):
-            return available_models[idx], "model"
+        if 0 <= idx < len(models):
+            return models[idx], "model"
 
-    print("[WARN] Lựa chọn không hợp lệ, dùng model ưu tiên cao nhất.")
-    return available_models[0], "model"
+    return models[0], "model"
 
-def infer_stage1_substage(model_path: str):
-    path = model_path.lower().replace("\\", "/")
-    if "1c" in path:
+
+def infer_substage(path: str) -> str:
+    p = path.lower()
+    if "1c" in p:
         return "1C"
-    elif "1b" in path:
+    if "1b" in p:
         return "1B"
-    elif "1a" in path:
-        return "1A"
-    else:
-        return "1A"
+    return "1A"
 
+# ============================================================
+# MAIN
+# ============================================================
 def main():
-    available_models = get_available_models()
+    models = get_available_models()
 
-    if len(available_models) == 0:
-        print("[INFO] No trained model found.")
-        print("[MODE] Random action test (system/setup check only)")
+    if len(models) == 0:
+        print("No model found → random test")
         model = None
-        test_mode = "random"
+        substage = "1A"
+        mode = "random"
         model_path = None
     else:
-        model_path, test_mode = choose_model(available_models)
+        path, mode = choose_model(models)
 
-        if test_mode == "model":
-            from stable_baselines3 import PPO
-            print(f"\n[INFO] Selected model: {model_path}")
-            print("[MODE] Test trained model")
-            model = PPO.load(model_path)
+        if mode == "model":
+            print(f"Using model: {path}")
+            model = PPO.load(path)
+            substage = infer_substage(path)
+            model_path = path
         else:
-            print("\n[MODE] Random action test (system/setup check only)")
             model = None
+            substage = "1A"
+            model_path = None
 
-    if test_mode == "model" and model_path is not None:
-        selected_substage = infer_stage1_substage(model_path)
-    else:
-        selected_substage = "1A"
+    cfg = build_reach_config(substage)
+    cfg.sim.use_gui = USE_GUI
+    env = ReachEnv(cfg)
 
-    cfg = EnvConfig(stage1_substage=selected_substage)
-    env = ReachEnv(use_gui=USE_GUI, config=cfg)
-
-    print(f"[DEBUG] selected_substage = {selected_substage}")
-    print(f"[DEBUG] env.cfg.stage1_substage = {env.cfg.stage1_substage}")
-    print(f"[DEBUG] reward success_dist = {env.rewarder.success_dist}")
-
-    success_count = 0
-    episode_rewards = []
+    success = 0
+    rewards = []
     final_dists = []
 
-    for ep in range(N_EPISODES):
-        obs, _ = env.reset()
-        done = False
-        truncated = False
-        ep_reward = 0.0
-        last_dist = None
-        step = 0
-        info = {}
+    try:
+        for ep in range(N_EPISODES):
+            obs, info = env.reset()
+            done = False
+            truncated = False
+            total = 0.0
+            step = 0
+            last_dist = None
 
-        print("\n" + "=" * 70)
-        print(f"Episode {ep + 1}/{N_EPISODES}")
+            # ===== IN 1 LẦN DUY NHẤT CHO MỖI EPISODE =====
+            ee_pos_reset, _ = env.robot.get_ee_pose()
 
-        while not (done or truncated):
-            if test_mode == "model":
-                action, _ = model.predict(obs, deterministic=True)
-            else:
-                action = env.action_space.sample()
+            print(f"\n=== Episode {ep+1} ===")
+            print("[RESET]")
+            print(f"  ee_pos      = {np.round(ee_pos_reset, 4)}")
+            print(f"  object_pos  = {np.round(info.get('object_pos'), 4) if info.get('object_pos') is not None else None}")
+            print(f"  target_pos  = {np.round(info.get('target_pos'), 4) if info.get('target_pos') is not None else None}")
+            print(f"  dist        = {info.get('dist', -1):.4f}")
+            print(f"  xy_dist     = {info.get('xy_dist', -1):.4f}")
+            print(f"  z_dist      = {info.get('z_dist', -1):.4f}")
 
-            obs, reward, done, truncated, info = env.step(action)
+            while not (done or truncated):
+                if model:
+                    action, _ = model.predict(obs, deterministic=DETERMINISTIC)
+                else:
+                    action = env.action_space.sample()
 
-            ep_reward += reward
-            last_dist = info.get("ee_obj_dist", None)
-            success = info.get("success", False)
-            step += 1
+                obs, reward, done, truncated, info = env.step(action)
+                total += reward
+                step += 1
+                last_dist = info.get("dist", None)
 
-            if last_dist is not None:
+                # ===== MỖI STEP CHỈ IN NGẮN =====
                 print(
                     f"step={step:03d} | reward={reward:.3f} | "
-                    f"dist={last_dist:.3f} | success={success}"
+                    f"dist={info.get('dist', -1):.3f} | "
+                    f"xy={info.get('xy_dist', -1):.3f} | "
+                    f"z={info.get('z_dist', -1):.3f} | "
+                    f"success={info.get('success', False)}"
                 )
-            else:
-                print(
-                    f"step={step:03d} | reward={reward:.3f} | success={success}"
-                )
 
-            if success and USE_GUI:
-                time.sleep(5.0)
+                if USE_GUI:
+                    time.sleep(SLEEP_SEC)
 
-            time.sleep(SLEEP_SEC)
+            if info.get("success", False):
+                success += 1
 
-        if info.get("success", False):
-            success_count += 1
+            rewards.append(total)
+            if last_dist is not None:
+                final_dists.append(last_dist)
 
-        episode_rewards.append(ep_reward)
-        if last_dist is not None:
-            final_dists.append(last_dist)
+            print(
+                f"[EP DONE] total_reward={total:.3f} | "
+                f"final_dist={last_dist if last_dist is not None else 'N/A'} | "
+                f"success={info.get('success', False)} | "
+                f"terminated={done} | truncated={truncated}"
+            )
 
-        print(
-            f"[EP DONE] total_reward={ep_reward:.3f} | "
-            f"final_dist={last_dist if last_dist is not None else 'N/A'} | "
-            f"success={info.get('success', False)} | "
-            f"terminated={done} | truncated={truncated}"
-        )
+    finally:
+        env.close()
 
-    env.close()
-
+    print("\n===== RESULT =====")
     print("\n" + "=" * 70)
-    print("FINAL RESULT")
-    print(f"Mode: {'MODEL TEST' if test_mode == 'model' else 'RANDOM TEST'}")
+    print(f"Mode: {'MODEL TEST' if mode == 'model' else 'RANDOM TEST'}")
 
     if model_path is not None:
         print(f"Model used: {model_path}")
 
     print(f"Episodes: {N_EPISODES}")
-    print(f"Success rate: {success_count / N_EPISODES:.2f}")
-    print(f"Mean reward: {np.mean(episode_rewards):.3f}")
-
-    if USE_GUI:
-        time.sleep(5.0)
+    print(f"Success rate: {success / N_EPISODES:.2f}")
+    print(f"Mean reward: {np.mean(rewards):.3f}")
 
     if len(final_dists) > 0:
         print(f"Mean final dist: {np.mean(final_dists):.3f}")
     else:
         print("Mean final dist: N/A")
-
 
 if __name__ == "__main__":
     main()
