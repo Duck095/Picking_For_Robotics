@@ -32,7 +32,37 @@ class PlaceEnv(gym.Env):
         
         self.target_pos = np.array(self.config.TARGET_POS_3A, dtype=np.float32)
         params = self.config.get_success_params(self.substage)
-        self.rewarder = RewardModulePlace(ee_link=11, target_pos=self.target_pos, physics_client_id=self.cid, **params)
+        self.rewarder = RewardModulePlace(
+            ee_link=11,
+            target_pos=self.target_pos,
+            substage=self.substage,
+            physics_client_id=self.cid,
+            time_penalty=self.config.TIME_PENALTY,
+            dist_weight=self.config.DIST_WEIGHT,
+            xy_weight=self.config.XY_WEIGHT,
+            z_weight=self.config.Z_WEIGHT,
+            holding_bonus=self.config.HOLDING_BONUS,
+            near_target_hold_bonus=self.config.NEAR_TARGET_HOLD_BONUS,
+            release_bonus=self.config.RELEASE_BONUS,
+            gentle_release_bonus=self.config.GENTLE_RELEASE_BONUS,
+            success_bonus=self.config.SUCCESS_BONUS,
+            delta_clip=self.config.DELTA_CLIP,
+            high_release_penalty=self.config.HIGH_RELEASE_PENALTY,
+            velocity_penalty_weight=self.config.VELOCITY_PENALTY_WEIGHT,
+            failed_place_penalty=self.config.FAILED_PLACE_PENALTY,
+            early_release_penalty=self.config.EARLY_RELEASE_PENALTY,
+            far_release_penalty=self.config.FAR_RELEASE_PENALTY,
+            release_near_factor=self.config.RELEASE_NEAR_FACTOR,
+            release_height_tol=self.config.RELEASE_HEIGHT_TOL,
+            success_z_tol=self.config.SUCCESS_Z_TOL,
+            success_vel_tol=self.config.SUCCESS_VEL_TOL,
+            success_ang_vel_tol=self.config.SUCCESS_ANG_VEL_TOL,
+            good_release_vel=self.config.GOOD_RELEASE_VEL,
+            ready_release_grace_steps=self.config.READY_RELEASE_GRACE_STEPS,
+            overhold_penalty=self.config.OVERHOLD_PENALTY,
+            terminate_on_bad_release=self.config.TERMINATE_ON_BAD_RELEASE,
+            **params,
+        )
 
         self.hold_cid = None
         self.step_count = 0
@@ -53,6 +83,7 @@ class PlaceEnv(gym.Env):
         p.changeVisualShape(self.object_id, -1, rgbaColor=[1.0, 0.08, 0.58, 1.0], physicsClientId=self.cid)
 
         self.target_pos = self._sample_target()
+        self.rewarder.reset()
         self.rewarder.set_target(self.target_pos)
         self.target_vis_id = p.loadURDF("cube_small.urdf", basePosition=self.target_pos.tolist(), useFixedBase=True, physicsClientId=self.cid)
         p.changeVisualShape(self.target_vis_id, -1, rgbaColor=[1, 0, 0, 0.5], physicsClientId=self.cid)
@@ -147,14 +178,24 @@ class PlaceEnv(gym.Env):
         self.step_count += 1
         
         ee_p, _ = self.ctrl.get_ee_pose()
-        info.update({"ee_pos": ee_p, "target_pos": self.target_pos.tolist()})
-        return self._pack_obs(), float(reward), bool(done), self.step_count >= self.config.MAX_STEPS, info
+        truncated = self.step_count >= self.config.MAX_STEPS
+        info.update({
+            "ee_pos": ee_p,
+            "target_pos": self.target_pos.tolist(),
+            "step_count": self.step_count,
+            "place_substage": self.substage,
+            "action": [float(dx), float(dy), float(dz), float(grip)],
+            "terminated": bool(done),
+            "truncated": bool(truncated),
+        })
+        return self._pack_obs(), float(reward), bool(done), bool(truncated), info
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         # FIX CỰC QUAN TRỌNG: Xóa trí nhớ về cái khóa kẹp cũ trước khi setup cảnh mới!
         self.hold_cid = None 
         self.has_dropped = False
+        self.rewarder.reset()
         self._setup_scene()
         self.step_count = 0
         rgb = self.camera.render_rgb()
@@ -164,7 +205,14 @@ class PlaceEnv(gym.Env):
         return self._pack_obs(), info
 
     def _pack_obs(self): return np.concatenate(list(self.frame_buffer), axis=-1)
-    def _sample_target(self): return np.array(self.config.TARGET_POS_3A)
+    def _sample_target(self):
+        if self.substage == "3A":
+            return np.array(self.config.TARGET_POS_3A, dtype=np.float32)
+        else:
+            x = np.random.uniform(self.config.TARGET_X_RANGE_3BC[0], self.config.TARGET_X_RANGE_3BC[1])
+            y = np.random.uniform(self.config.TARGET_Y_RANGE_3BC[0], self.config.TARGET_Y_RANGE_3BC[1])
+            z = self.config.TARGET_Z
+            return np.array([x, y, z], dtype=np.float32)
     def close(self):
         try:
             p.disconnect(self.cid)

@@ -52,12 +52,30 @@ class PlaceEnvConfig:
     Z_RELEASE_MAX_3C: Optional[float] = 0.08
 
     # Reward
-    TIME_PENALTY: float = 0.01
-    DIST_WEIGHT: float = 0.6
-    RELEASE_BONUS: float = 0.2
-    SUCCESS_BONUS: float = 3.0
+    TIME_PENALTY: float = 0.005
+    DIST_WEIGHT: float = 2.5
+    XY_WEIGHT: float = 3.5
+    Z_WEIGHT: float = 1.0
+    HOLDING_BONUS: float = 0.005
+    NEAR_TARGET_HOLD_BONUS: float = 0.02
+    RELEASE_BONUS: float = 1.0
+    GENTLE_RELEASE_BONUS: float = 0.5
+    SUCCESS_BONUS: float = 15.0
     DELTA_CLIP: float = 0.03
     HIGH_RELEASE_PENALTY: float = 1.0
+    VELOCITY_PENALTY_WEIGHT: float = 0.08
+    FAILED_PLACE_PENALTY: float = 0.5
+    EARLY_RELEASE_PENALTY: float = 1.0
+    FAR_RELEASE_PENALTY: float = 0.5
+    RELEASE_NEAR_FACTOR: float = 1.0
+    RELEASE_HEIGHT_TOL: float = 0.03
+    SUCCESS_Z_TOL: float = 0.025
+    SUCCESS_VEL_TOL: float = 0.10
+    SUCCESS_ANG_VEL_TOL: float = 0.30
+    GOOD_RELEASE_VEL: float = 0.10
+    READY_RELEASE_GRACE_STEPS: int = 12
+    OVERHOLD_PENALTY: float = 0.03
+    TERMINATE_ON_BAD_RELEASE: bool = True
 
     # Start-held helper
     START_HOLD_DESCEND_STEPS: int = 40
