@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections import deque
+from collections import deque, defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -10,21 +10,6 @@ from stable_baselines3.common.callbacks import BaseCallback
 
 
 class ReachDebugSummaryCallback(BaseCallback):
-    """
-    Debug summary callback kiểu production.
-
-    Đây là file debug chính để đọc quá trình học.
-    Nó chỉ giữ rolling summary, không spam reward breakdown.
-
-    Metric chính:
-    - success_rate_100
-    - reward_mean_100
-    - ep_len_mean_100
-    - dist_mean_100
-    - xy_dist_mean_100
-    - z_dist_mean_100
-    """
-
     def __init__(
         self,
         log_dir: str,
@@ -44,17 +29,26 @@ class ReachDebugSummaryCallback(BaseCallback):
         self._fp = None
         self._last_print = 0
 
-        # rolling buffers
+        # global rolling windows
         self.success_window = deque(maxlen=self.window_size)
         self.reward_window = deque(maxlen=self.window_size)
         self.ep_len_window = deque(maxlen=self.window_size)
         self.dist_window = deque(maxlen=self.window_size)
         self.xy_dist_window = deque(maxlen=self.window_size)
         self.z_dist_window = deque(maxlen=self.window_size)
+        self.stable_pose_steps_window = deque(maxlen=self.window_size)
+        self.yaw_error_window = deque(maxlen=self.window_size)
 
-        # current episode accumulators
+        # current episode metrics
         self.current_episode_reward = 0.0
         self.current_episode_len = 0
+
+        # rolling windows by curriculum level
+        self.level_stats: Dict[str, Dict[str, deque]] = {
+            "easy": defaultdict(lambda: deque(maxlen=self.window_size)),
+            "medium": defaultdict(lambda: deque(maxlen=self.window_size)),
+            "hard": defaultdict(lambda: deque(maxlen=self.window_size)),
+        }
 
     def _on_training_start(self) -> None:
         self.log_dir.mkdir(parents=True, exist_ok=True)
@@ -121,58 +115,66 @@ class ReachDebugSummaryCallback(BaseCallback):
         if info is None:
             return True
 
+        # accumulate current episode
         self.current_episode_reward += reward
         self.current_episode_len += 1
 
         if done:
             sub = str(info.get("substage", "UNK"))
+            level = str(info.get("curriculum_level", "unknown"))
+
             success = float(bool(info.get("success", False)))
             final_dist = float(info.get("dist", -1.0))
             final_xy = float(info.get("xy_dist", -1.0))
             final_z = float(info.get("z_dist", -1.0))
+            stable_pose_steps = float(info.get("stable_pose_steps", 0.0))
+            final_yaw_error = float(info.get("yaw_error", 0.0))
 
+            # global window
             self.success_window.append(success)
             self.reward_window.append(float(self.current_episode_reward))
             self.ep_len_window.append(float(self.current_episode_len))
             self.dist_window.append(final_dist)
             self.xy_dist_window.append(final_xy)
             self.z_dist_window.append(final_z)
+            self.stable_pose_steps_window.append(stable_pose_steps)
+            self.yaw_error_window.append(final_yaw_error)
 
-            success_rate = self._safe_mean(self.success_window)
-            reward_mean = self._safe_mean(self.reward_window)
-            ep_len_mean = self._safe_mean(self.ep_len_window)
-            dist_mean = self._safe_mean(self.dist_window)
-            xy_mean = self._safe_mean(self.xy_dist_window)
-            z_mean = self._safe_mean(self.z_dist_window)
+            # level-specific window
+            self.level_stats[level]["success"].append(success)
+            self.level_stats[level]["reward"].append(float(self.current_episode_reward))
+            self.level_stats[level]["ep_len"].append(float(self.current_episode_len))
+            self.level_stats[level]["dist"].append(final_dist)
+            self.level_stats[level]["xy"].append(final_xy)
+            self.level_stats[level]["z"].append(final_z)
+            self.level_stats[level]["stable"].append(stable_pose_steps)
+            self.level_stats[level]["yaw"].append(final_yaw_error)
 
+            # build global summary line
             line = (
                 f"[SUMMARY] "
                 f"t={self.num_timesteps:<8d} "
-                f"sub={sub:<2s} "
-                f"success_rate_{self.window_size}={success_rate:.3f} "
-                f"reward_mean_{self.window_size}={reward_mean:.3f} "
-                f"ep_len_mean_{self.window_size}={ep_len_mean:.1f} "
-                f"dist_mean_{self.window_size}={dist_mean:.4f} "
-                f"xy_mean_{self.window_size}={xy_mean:.4f} "
-                f"z_mean_{self.window_size}={z_mean:.4f}"
+                f"sub={sub:<4s} "
+                f"curr={level:<6} "
+                f"success_rate_{self.window_size}={self._safe_mean(self.success_window):.3f} "
+                f"reward_mean_{self.window_size}={self._safe_mean(self.reward_window):.3f} "
+                f"ep_len_mean_{self.window_size}={self._safe_mean(self.ep_len_window):.1f} "
+                f"dist_mean_{self.window_size}={self._safe_mean(self.dist_window):.4f} "
+                f"xy_mean_{self.window_size}={self._safe_mean(self.xy_dist_window):.4f} "
+                f"z_mean_{self.window_size}={self._safe_mean(self.z_dist_window):.4f} "
+                f"stable_mean_{self.window_size}={self._safe_mean(self.stable_pose_steps_window):.2f} "
+                f"yaw_mean_{self.window_size}={self._safe_mean(self.yaw_error_window):.4f}"
             )
 
+            # print and log
             self._fp.write(line + "\n")
             self._fp.flush()
 
-            # record sang SB3 logger
-            self.logger.record(f"reach_summary/success_rate_{self.window_size}", success_rate)
-            self.logger.record(f"reach_summary/reward_mean_{self.window_size}", reward_mean)
-            self.logger.record(f"reach_summary/ep_len_mean_{self.window_size}", ep_len_mean)
-            self.logger.record(f"reach_summary/dist_mean_{self.window_size}", dist_mean)
-            self.logger.record(f"reach_summary/xy_dist_mean_{self.window_size}", xy_mean)
-            self.logger.record(f"reach_summary/z_dist_mean_{self.window_size}", z_mean)
-
-            if self.num_timesteps - self._last_print >= self.print_freq:
+            if self.verbose > 0 and self.num_timesteps - self._last_print >= self.print_freq:
                 print(line)
                 self._last_print = self.num_timesteps
 
-            # reset accumulators cho episode sau
+            # reset episode accumulators
             self.current_episode_reward = 0.0
             self.current_episode_len = 0
 

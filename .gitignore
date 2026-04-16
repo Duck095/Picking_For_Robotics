@@ -1,0 +1,9 @@
+# Bỏ qua file rác Python
+__pycache__/
+*.pyc
+
+# Bỏ qua môi trường ảo
+rl_robot/
+robot/
+
+bullet3-3.25

@@ -1,159 +1,174 @@
 
 ====================================================================================================
-[START] 2026-03-26 09:02:37.435295
+[START] 2026-04-04 00:18:20.624025
 ====================================================================================================
-[SUMMARY] t=226000   sub=1C success_rate_100=0.000 reward_mean_100=-2.826 ep_len_mean_100=200.0 dist_mean_100=0.1745 xy_mean_100=0.1303 z_mean_100=0.1161
-[SUMMARY] t=226512   sub=1C success_rate_100=0.500 reward_mean_100=-0.551 ep_len_mean_100=132.0 dist_mean_100=0.1041 xy_mean_100=0.0811 z_mean_100=0.0635
-[SUMMARY] t=228112   sub=1C success_rate_100=0.333 reward_mean_100=-1.649 ep_len_mean_100=154.7 dist_mean_100=0.1175 xy_mean_100=0.0923 z_mean_100=0.0716
-[SUMMARY] t=229712   sub=1C success_rate_100=0.250 reward_mean_100=-2.067 ep_len_mean_100=166.0 dist_mean_100=0.1372 xy_mean_100=0.1073 z_mean_100=0.0846
-[SUMMARY] t=231312   sub=1C success_rate_100=0.200 reward_mean_100=-2.323 ep_len_mean_100=172.8 dist_mean_100=0.1506 xy_mean_100=0.1180 z_mean_100=0.0928
-[SUMMARY] t=231968   sub=1C success_rate_100=0.333 reward_mean_100=-1.470 ep_len_mean_100=157.7 dist_mean_100=0.1312 xy_mean_100=0.1033 z_mean_100=0.0803
-[SUMMARY] t=233568   sub=1C success_rate_100=0.286 reward_mean_100=-1.710 ep_len_mean_100=163.7 dist_mean_100=0.1465 xy_mean_100=0.1182 z_mean_100=0.0854
-[SUMMARY] t=235168   sub=1C success_rate_100=0.250 reward_mean_100=-1.874 ep_len_mean_100=168.2 dist_mean_100=0.1510 xy_mean_100=0.1235 z_mean_100=0.0854
-[SUMMARY] t=236768   sub=1C success_rate_100=0.222 reward_mean_100=-2.009 ep_len_mean_100=171.8 dist_mean_100=0.1531 xy_mean_100=0.1234 z_mean_100=0.0890
-[SUMMARY] t=238368   sub=1C success_rate_100=0.200 reward_mean_100=-2.114 ep_len_mean_100=174.6 dist_mean_100=0.1573 xy_mean_100=0.1262 z_mean_100=0.0926
-[SUMMARY] t=239968   sub=1C success_rate_100=0.182 reward_mean_100=-2.253 ep_len_mean_100=176.9 dist_mean_100=0.1551 xy_mean_100=0.1174 z_mean_100=0.0960
-[SUMMARY] t=241568   sub=1C success_rate_100=0.167 reward_mean_100=-2.305 ep_len_mean_100=178.8 dist_mean_100=0.1549 xy_mean_100=0.1147 z_mean_100=0.0986
-[SUMMARY] t=243168   sub=1C success_rate_100=0.154 reward_mean_100=-2.349 ep_len_mean_100=180.5 dist_mean_100=0.1559 xy_mean_100=0.1152 z_mean_100=0.0999
-[SUMMARY] t=244768   sub=1C success_rate_100=0.143 reward_mean_100=-2.461 ep_len_mean_100=181.9 dist_mean_100=0.1561 xy_mean_100=0.1150 z_mean_100=0.1008
-[SUMMARY] t=245592   sub=1C success_rate_100=0.200 reward_mean_100=-2.076 ep_len_mean_100=176.6 dist_mean_100=0.1480 xy_mean_100=0.1084 z_mean_100=0.0961
-[SUMMARY] t=246184   sub=1C success_rate_100=0.250 reward_mean_100=-1.804 ep_len_mean_100=170.2 dist_mean_100=0.1409 xy_mean_100=0.1035 z_mean_100=0.0912
-[SUMMARY] t=247784   sub=1C success_rate_100=0.235 reward_mean_100=-1.890 ep_len_mean_100=171.9 dist_mean_100=0.1397 xy_mean_100=0.1020 z_mean_100=0.0912
-[SUMMARY] t=249384   sub=1C success_rate_100=0.222 reward_mean_100=-2.013 ep_len_mean_100=173.5 dist_mean_100=0.1412 xy_mean_100=0.1023 z_mean_100=0.0932
-[SUMMARY] t=250200   sub=1C success_rate_100=0.263 reward_mean_100=-1.809 ep_len_mean_100=169.7 dist_mean_100=0.1356 xy_mean_100=0.0987 z_mean_100=0.0887
-[SUMMARY] t=251800   sub=1C success_rate_100=0.250 reward_mean_100=-1.901 ep_len_mean_100=171.2 dist_mean_100=0.1350 xy_mean_100=0.0982 z_mean_100=0.0886
-[SUMMARY] t=253400   sub=1C success_rate_100=0.238 reward_mean_100=-1.981 ep_len_mean_100=172.6 dist_mean_100=0.1369 xy_mean_100=0.0995 z_mean_100=0.0902
-[SUMMARY] t=253880   sub=1C success_rate_100=0.273 reward_mean_100=-1.804 ep_len_mean_100=167.5 dist_mean_100=0.1322 xy_mean_100=0.0962 z_mean_100=0.0870
-[SUMMARY] t=255480   sub=1C success_rate_100=0.261 reward_mean_100=-1.898 ep_len_mean_100=168.9 dist_mean_100=0.1331 xy_mean_100=0.0965 z_mean_100=0.0881
-[SUMMARY] t=257080   sub=1C success_rate_100=0.250 reward_mean_100=-1.975 ep_len_mean_100=170.2 dist_mean_100=0.1350 xy_mean_100=0.0983 z_mean_100=0.0891
-[SUMMARY] t=258680   sub=1C success_rate_100=0.240 reward_mean_100=-2.080 ep_len_mean_100=171.4 dist_mean_100=0.1347 xy_mean_100=0.0950 z_mean_100=0.0906
-[SUMMARY] t=259632   sub=1C success_rate_100=0.269 reward_mean_100=-1.941 ep_len_mean_100=169.4 dist_mean_100=0.1308 xy_mean_100=0.0924 z_mean_100=0.0878
-[SUMMARY] t=260200   sub=1C success_rate_100=0.296 reward_mean_100=-1.807 ep_len_mean_100=165.7 dist_mean_100=0.1273 xy_mean_100=0.0897 z_mean_100=0.0856
-[SUMMARY] t=261800   sub=1C success_rate_100=0.286 reward_mean_100=-1.858 ep_len_mean_100=167.0 dist_mean_100=0.1282 xy_mean_100=0.0900 z_mean_100=0.0868
-[SUMMARY] t=262328   sub=1C success_rate_100=0.310 reward_mean_100=-1.735 ep_len_mean_100=163.5 dist_mean_100=0.1250 xy_mean_100=0.0881 z_mean_100=0.0840
-[SUMMARY] t=263384   sub=1C success_rate_100=0.333 reward_mean_100=-1.642 ep_len_mean_100=162.4 dist_mean_100=0.1220 xy_mean_100=0.0862 z_mean_100=0.0817
-[SUMMARY] t=264256   sub=1C success_rate_100=0.355 reward_mean_100=-1.541 ep_len_mean_100=160.7 dist_mean_100=0.1192 xy_mean_100=0.0842 z_mean_100=0.0799
-[SUMMARY] t=264824   sub=1C success_rate_100=0.375 reward_mean_100=-1.425 ep_len_mean_100=157.9 dist_mean_100=0.1165 xy_mean_100=0.0818 z_mean_100=0.0784
-[SUMMARY] t=265576   sub=1C success_rate_100=0.394 reward_mean_100=-1.284 ep_len_mean_100=156.0 dist_mean_100=0.1140 xy_mean_100=0.0799 z_mean_100=0.0768
-[SUMMARY] t=266168   sub=1C success_rate_100=0.412 reward_mean_100=-1.150 ep_len_mean_100=153.6 dist_mean_100=0.1116 xy_mean_100=0.0779 z_mean_100=0.0755
-[SUMMARY] t=266688   sub=1C success_rate_100=0.429 reward_mean_100=-1.065 ep_len_mean_100=151.0 dist_mean_100=0.1094 xy_mean_100=0.0764 z_mean_100=0.0740
-[SUMMARY] t=267216   sub=1C success_rate_100=0.444 reward_mean_100=-0.990 ep_len_mean_100=148.7 dist_mean_100=0.1073 xy_mean_100=0.0749 z_mean_100=0.0726
-[SUMMARY] t=268816   sub=1C success_rate_100=0.432 reward_mean_100=-1.073 ep_len_mean_100=150.1 dist_mean_100=0.1086 xy_mean_100=0.0764 z_mean_100=0.0731
-[SUMMARY] t=270416   sub=1C success_rate_100=0.421 reward_mean_100=-1.150 ep_len_mean_100=151.4 dist_mean_100=0.1093 xy_mean_100=0.0751 z_mean_100=0.0746
-[SUMMARY] t=271024   sub=1C success_rate_100=0.436 reward_mean_100=-1.047 ep_len_mean_100=149.4 dist_mean_100=0.1073 xy_mean_100=0.0737 z_mean_100=0.0733
-[SUMMARY] t=272624   sub=1C success_rate_100=0.425 reward_mean_100=-1.124 ep_len_mean_100=150.7 dist_mean_100=0.1084 xy_mean_100=0.0738 z_mean_100=0.0747
-[SUMMARY] t=274224   sub=1C success_rate_100=0.415 reward_mean_100=-1.188 ep_len_mean_100=151.9 dist_mean_100=0.1081 xy_mean_100=0.0730 z_mean_100=0.0750
-[SUMMARY] t=274816   sub=1C success_rate_100=0.429 reward_mean_100=-1.104 ep_len_mean_100=150.0 dist_mean_100=0.1064 xy_mean_100=0.0719 z_mean_100=0.0738
-[SUMMARY] t=275888   sub=1C success_rate_100=0.442 reward_mean_100=-1.016 ep_len_mean_100=149.7 dist_mean_100=0.1047 xy_mean_100=0.0706 z_mean_100=0.0727
-[SUMMARY] t=276776   sub=1C success_rate_100=0.455 reward_mean_100=-0.963 ep_len_mean_100=148.8 dist_mean_100=0.1031 xy_mean_100=0.0698 z_mean_100=0.0714
-[SUMMARY] t=277560   sub=1C success_rate_100=0.467 reward_mean_100=-0.858 ep_len_mean_100=147.7 dist_mean_100=0.1015 xy_mean_100=0.0684 z_mean_100=0.0705
-[SUMMARY] t=278360   sub=1C success_rate_100=0.478 reward_mean_100=-0.769 ep_len_mean_100=146.6 dist_mean_100=0.1001 xy_mean_100=0.0673 z_mean_100=0.0695
-[SUMMARY] t=278912   sub=1C success_rate_100=0.489 reward_mean_100=-0.712 ep_len_mean_100=145.0 dist_mean_100=0.0987 xy_mean_100=0.0663 z_mean_100=0.0687
-[SUMMARY] t=279544   sub=1C success_rate_100=0.500 reward_mean_100=-0.665 ep_len_mean_100=143.6 dist_mean_100=0.0973 xy_mean_100=0.0656 z_mean_100=0.0673
-[SUMMARY] t=280440   sub=1C success_rate_100=0.510 reward_mean_100=-0.614 ep_len_mean_100=143.0 dist_mean_100=0.0960 xy_mean_100=0.0648 z_mean_100=0.0664
-[SUMMARY] t=282040   sub=1C success_rate_100=0.500 reward_mean_100=-0.679 ep_len_mean_100=144.1 dist_mean_100=0.0979 xy_mean_100=0.0666 z_mean_100=0.0672
-[SUMMARY] t=283016   sub=1C success_rate_100=0.510 reward_mean_100=-0.603 ep_len_mean_100=143.7 dist_mean_100=0.0966 xy_mean_100=0.0658 z_mean_100=0.0664
-[SUMMARY] t=283664   sub=1C success_rate_100=0.519 reward_mean_100=-0.556 ep_len_mean_100=142.5 dist_mean_100=0.0954 xy_mean_100=0.0650 z_mean_100=0.0655
-[SUMMARY] t=284528   sub=1C success_rate_100=0.528 reward_mean_100=-0.481 ep_len_mean_100=141.8 dist_mean_100=0.0943 xy_mean_100=0.0641 z_mean_100=0.0648
-[SUMMARY] t=285240   sub=1C success_rate_100=0.537 reward_mean_100=-0.406 ep_len_mean_100=140.8 dist_mean_100=0.0931 xy_mean_100=0.0633 z_mean_100=0.0641
-[SUMMARY] t=285920   sub=1C success_rate_100=0.545 reward_mean_100=-0.349 ep_len_mean_100=139.8 dist_mean_100=0.0920 xy_mean_100=0.0625 z_mean_100=0.0634
-[SUMMARY] t=286696   sub=1C success_rate_100=0.554 reward_mean_100=-0.287 ep_len_mean_100=139.1 dist_mean_100=0.0910 xy_mean_100=0.0616 z_mean_100=0.0628
-[SUMMARY] t=287240   sub=1C success_rate_100=0.561 reward_mean_100=-0.250 ep_len_mean_100=137.8 dist_mean_100=0.0900 xy_mean_100=0.0609 z_mean_100=0.0621
-[SUMMARY] t=288040   sub=1C success_rate_100=0.569 reward_mean_100=-0.212 ep_len_mean_100=137.2 dist_mean_100=0.0890 xy_mean_100=0.0601 z_mean_100=0.0616
-[SUMMARY] t=289640   sub=1C success_rate_100=0.559 reward_mean_100=-0.265 ep_len_mean_100=138.2 dist_mean_100=0.0903 xy_mean_100=0.0614 z_mean_100=0.0621
-[SUMMARY] t=290384   sub=1C success_rate_100=0.567 reward_mean_100=-0.215 ep_len_mean_100=137.5 dist_mean_100=0.0893 xy_mean_100=0.0605 z_mean_100=0.0616
-[SUMMARY] t=291056   sub=1C success_rate_100=0.574 reward_mean_100=-0.187 ep_len_mean_100=136.6 dist_mean_100=0.0884 xy_mean_100=0.0599 z_mean_100=0.0610
-[SUMMARY] t=291768   sub=1C success_rate_100=0.581 reward_mean_100=-0.134 ep_len_mean_100=135.8 dist_mean_100=0.0876 xy_mean_100=0.0591 z_mean_100=0.0605
-[SUMMARY] t=292336   sub=1C success_rate_100=0.587 reward_mean_100=-0.100 ep_len_mean_100=134.8 dist_mean_100=0.0867 xy_mean_100=0.0585 z_mean_100=0.0600
-[SUMMARY] t=293040   sub=1C success_rate_100=0.594 reward_mean_100=-0.076 ep_len_mean_100=134.1 dist_mean_100=0.0859 xy_mean_100=0.0580 z_mean_100=0.0593
-[SUMMARY] t=293792   sub=1C success_rate_100=0.600 reward_mean_100=-0.016 ep_len_mean_100=133.4 dist_mean_100=0.0851 xy_mean_100=0.0573 z_mean_100=0.0589
-[SUMMARY] t=294984   sub=1C success_rate_100=0.606 reward_mean_100=0.027 ep_len_mean_100=133.7 dist_mean_100=0.0843 xy_mean_100=0.0567 z_mean_100=0.0585
-[SUMMARY] t=295712   sub=1C success_rate_100=0.612 reward_mean_100=0.061 ep_len_mean_100=133.0 dist_mean_100=0.0836 xy_mean_100=0.0563 z_mean_100=0.0578
-[SUMMARY] t=296448   sub=1C success_rate_100=0.618 reward_mean_100=0.103 ep_len_mean_100=132.4 dist_mean_100=0.0829 xy_mean_100=0.0558 z_mean_100=0.0574
-[SUMMARY] t=297080   sub=1C success_rate_100=0.623 reward_mean_100=0.124 ep_len_mean_100=131.7 dist_mean_100=0.0822 xy_mean_100=0.0553 z_mean_100=0.0569
-[SUMMARY] t=298120   sub=1C success_rate_100=0.629 reward_mean_100=0.165 ep_len_mean_100=131.6 dist_mean_100=0.0815 xy_mean_100=0.0548 z_mean_100=0.0565
-[SUMMARY] t=298856   sub=1C success_rate_100=0.634 reward_mean_100=0.221 ep_len_mean_100=131.1 dist_mean_100=0.0808 xy_mean_100=0.0542 z_mean_100=0.0561
-[SUMMARY] t=300456   sub=1C success_rate_100=0.625 reward_mean_100=0.164 ep_len_mean_100=132.0 dist_mean_100=0.0815 xy_mean_100=0.0543 z_mean_100=0.0569
-[SUMMARY] t=301064   sub=1C success_rate_100=0.630 reward_mean_100=0.188 ep_len_mean_100=131.3 dist_mean_100=0.0809 xy_mean_100=0.0539 z_mean_100=0.0565
-[SUMMARY] t=301680   sub=1C success_rate_100=0.635 reward_mean_100=0.223 ep_len_mean_100=130.5 dist_mean_100=0.0802 xy_mean_100=0.0533 z_mean_100=0.0562
-[SUMMARY] t=302752   sub=1C success_rate_100=0.640 reward_mean_100=0.256 ep_len_mean_100=130.6 dist_mean_100=0.0796 xy_mean_100=0.0527 z_mean_100=0.0559
-[SUMMARY] t=303616   sub=1C success_rate_100=0.645 reward_mean_100=0.277 ep_len_mean_100=130.3 dist_mean_100=0.0790 xy_mean_100=0.0522 z_mean_100=0.0556
-[SUMMARY] t=304240   sub=1C success_rate_100=0.649 reward_mean_100=0.292 ep_len_mean_100=129.6 dist_mean_100=0.0784 xy_mean_100=0.0519 z_mean_100=0.0551
-[SUMMARY] t=305120   sub=1C success_rate_100=0.654 reward_mean_100=0.330 ep_len_mean_100=129.4 dist_mean_100=0.0778 xy_mean_100=0.0513 z_mean_100=0.0548
-[SUMMARY] t=305792   sub=1C success_rate_100=0.658 reward_mean_100=0.356 ep_len_mean_100=128.8 dist_mean_100=0.0773 xy_mean_100=0.0509 z_mean_100=0.0545
-[SUMMARY] t=306432   sub=1C success_rate_100=0.662 reward_mean_100=0.371 ep_len_mean_100=128.2 dist_mean_100=0.0767 xy_mean_100=0.0505 z_mean_100=0.0541
-[SUMMARY] t=307512   sub=1C success_rate_100=0.667 reward_mean_100=0.397 ep_len_mean_100=128.3 dist_mean_100=0.0762 xy_mean_100=0.0502 z_mean_100=0.0538
-[SUMMARY] t=308280   sub=1C success_rate_100=0.671 reward_mean_100=0.443 ep_len_mean_100=127.9 dist_mean_100=0.0757 xy_mean_100=0.0497 z_mean_100=0.0535
-[SUMMARY] t=308960   sub=1C success_rate_100=0.675 reward_mean_100=0.476 ep_len_mean_100=127.3 dist_mean_100=0.0752 xy_mean_100=0.0493 z_mean_100=0.0532
-[SUMMARY] t=309680   sub=1C success_rate_100=0.679 reward_mean_100=0.493 ep_len_mean_100=126.9 dist_mean_100=0.0747 xy_mean_100=0.0490 z_mean_100=0.0529
-[SUMMARY] t=311280   sub=1C success_rate_100=0.671 reward_mean_100=0.441 ep_len_mean_100=127.8 dist_mean_100=0.0754 xy_mean_100=0.0496 z_mean_100=0.0533
-[SUMMARY] t=312304   sub=1C success_rate_100=0.674 reward_mean_100=0.468 ep_len_mean_100=127.8 dist_mean_100=0.0749 xy_mean_100=0.0493 z_mean_100=0.0529
-[SUMMARY] t=312896   sub=1C success_rate_100=0.678 reward_mean_100=0.506 ep_len_mean_100=127.1 dist_mean_100=0.0744 xy_mean_100=0.0489 z_mean_100=0.0527
-[SUMMARY] t=313576   sub=1C success_rate_100=0.682 reward_mean_100=0.524 ep_len_mean_100=126.7 dist_mean_100=0.0740 xy_mean_100=0.0487 z_mean_100=0.0522
-[SUMMARY] t=314424   sub=1C success_rate_100=0.685 reward_mean_100=0.552 ep_len_mean_100=126.4 dist_mean_100=0.0735 xy_mean_100=0.0484 z_mean_100=0.0520
-[SUMMARY] t=315112   sub=1C success_rate_100=0.689 reward_mean_100=0.585 ep_len_mean_100=126.0 dist_mean_100=0.0731 xy_mean_100=0.0479 z_mean_100=0.0518
-[SUMMARY] t=315888   sub=1C success_rate_100=0.692 reward_mean_100=0.617 ep_len_mean_100=125.7 dist_mean_100=0.0727 xy_mean_100=0.0475 z_mean_100=0.0516
-[SUMMARY] t=316448   sub=1C success_rate_100=0.696 reward_mean_100=0.628 ep_len_mean_100=125.1 dist_mean_100=0.0723 xy_mean_100=0.0474 z_mean_100=0.0510
-[SUMMARY] t=317584   sub=1C success_rate_100=0.699 reward_mean_100=0.648 ep_len_mean_100=125.2 dist_mean_100=0.0718 xy_mean_100=0.0471 z_mean_100=0.0507
-[SUMMARY] t=318112   sub=1C success_rate_100=0.702 reward_mean_100=0.667 ep_len_mean_100=124.6 dist_mean_100=0.0714 xy_mean_100=0.0468 z_mean_100=0.0505
-[SUMMARY] t=318792   sub=1C success_rate_100=0.705 reward_mean_100=0.698 ep_len_mean_100=124.2 dist_mean_100=0.0710 xy_mean_100=0.0463 z_mean_100=0.0503
-[SUMMARY] t=319472   sub=1C success_rate_100=0.708 reward_mean_100=0.714 ep_len_mean_100=123.8 dist_mean_100=0.0707 xy_mean_100=0.0460 z_mean_100=0.0501
-[SUMMARY] t=320184   sub=1C success_rate_100=0.711 reward_mean_100=0.738 ep_len_mean_100=123.4 dist_mean_100=0.0703 xy_mean_100=0.0457 z_mean_100=0.0499
-[SUMMARY] t=320840   sub=1C success_rate_100=0.714 reward_mean_100=0.751 ep_len_mean_100=123.0 dist_mean_100=0.0699 xy_mean_100=0.0454 z_mean_100=0.0497
-[SUMMARY] t=321704   sub=1C success_rate_100=0.717 reward_mean_100=0.762 ep_len_mean_100=122.9 dist_mean_100=0.0695 xy_mean_100=0.0451 z_mean_100=0.0495
-[SUMMARY] t=322368   sub=1C success_rate_100=0.720 reward_mean_100=0.788 ep_len_mean_100=122.5 dist_mean_100=0.0692 xy_mean_100=0.0447 z_mean_100=0.0493
-[SUMMARY] t=323248   sub=1C success_rate_100=0.730 reward_mean_100=0.856 ep_len_mean_100=121.6 dist_mean_100=0.0678 xy_mean_100=0.0436 z_mean_100=0.0485
-[SUMMARY] t=324048   sub=1C success_rate_100=0.730 reward_mean_100=0.870 ep_len_mean_100=121.9 dist_mean_100=0.0678 xy_mean_100=0.0434 z_mean_100=0.0487
-[SUMMARY] t=324664   sub=1C success_rate_100=0.740 reward_mean_100=0.943 ep_len_mean_100=120.7 dist_mean_100=0.0667 xy_mean_100=0.0422 z_mean_100=0.0482
-[SUMMARY] t=325504   sub=1C success_rate_100=0.750 reward_mean_100=1.010 ep_len_mean_100=119.7 dist_mean_100=0.0651 xy_mean_100=0.0408 z_mean_100=0.0473
-[SUMMARY] t=326032   sub=1C success_rate_100=0.760 reward_mean_100=1.062 ep_len_mean_100=118.4 dist_mean_100=0.0634 xy_mean_100=0.0392 z_mean_100=0.0463
-[SUMMARY] t=326576   sub=1C success_rate_100=0.760 reward_mean_100=1.053 ep_len_mean_100=118.3 dist_mean_100=0.0634 xy_mean_100=0.0392 z_mean_100=0.0464
-[SUMMARY] t=327224   sub=1C success_rate_100=0.770 reward_mean_100=1.123 ep_len_mean_100=117.1 dist_mean_100=0.0613 xy_mean_100=0.0372 z_mean_100=0.0455
-[SUMMARY] t=328216   sub=1C success_rate_100=0.780 reward_mean_100=1.187 ep_len_mean_100=116.3 dist_mean_100=0.0598 xy_mean_100=0.0357 z_mean_100=0.0450
-[SUMMARY] t=328776   sub=1C success_rate_100=0.790 reward_mean_100=1.256 ep_len_mean_100=115.0 dist_mean_100=0.0585 xy_mean_100=0.0345 z_mean_100=0.0442
-[SUMMARY] t=329384   sub=1C success_rate_100=0.800 reward_mean_100=1.303 ep_len_mean_100=113.8 dist_mean_100=0.0569 xy_mean_100=0.0333 z_mean_100=0.0430
-[SUMMARY] t=330120   sub=1C success_rate_100=0.810 reward_mean_100=1.355 ep_len_mean_100=112.7 dist_mean_100=0.0559 xy_mean_100=0.0333 z_mean_100=0.0420
-[SUMMARY] t=330880   sub=1C success_rate_100=0.820 reward_mean_100=1.409 ep_len_mean_100=111.6 dist_mean_100=0.0547 xy_mean_100=0.0326 z_mean_100=0.0410
-[SUMMARY] t=331776   sub=1C success_rate_100=0.830 reward_mean_100=1.466 ep_len_mean_100=110.8 dist_mean_100=0.0533 xy_mean_100=0.0316 z_mean_100=0.0401
-[SUMMARY] t=332448   sub=1C success_rate_100=0.840 reward_mean_100=1.533 ep_len_mean_100=109.6 dist_mean_100=0.0521 xy_mean_100=0.0306 z_mean_100=0.0393
-[SUMMARY] t=333208   sub=1C success_rate_100=0.840 reward_mean_100=1.535 ep_len_mean_100=109.5 dist_mean_100=0.0521 xy_mean_100=0.0306 z_mean_100=0.0393
-[SUMMARY] t=333728   sub=1C success_rate_100=0.840 reward_mean_100=1.547 ep_len_mean_100=109.4 dist_mean_100=0.0521 xy_mean_100=0.0303 z_mean_100=0.0394
-[SUMMARY] t=334480   sub=1C success_rate_100=0.850 reward_mean_100=1.617 ep_len_mean_100=108.4 dist_mean_100=0.0512 xy_mean_100=0.0298 z_mean_100=0.0388
-[SUMMARY] t=335168   sub=1C success_rate_100=0.860 reward_mean_100=1.695 ep_len_mean_100=107.2 dist_mean_100=0.0499 xy_mean_100=0.0287 z_mean_100=0.0378
-[SUMMARY] t=336768   sub=1C success_rate_100=0.850 reward_mean_100=1.638 ep_len_mean_100=108.2 dist_mean_100=0.0508 xy_mean_100=0.0292 z_mean_100=0.0387
-[SUMMARY] t=337432   sub=1C success_rate_100=0.860 reward_mean_100=1.702 ep_len_mean_100=107.0 dist_mean_100=0.0499 xy_mean_100=0.0285 z_mean_100=0.0382
-[SUMMARY] t=338152   sub=1C success_rate_100=0.870 reward_mean_100=1.766 ep_len_mean_100=105.9 dist_mean_100=0.0485 xy_mean_100=0.0274 z_mean_100=0.0373
-[SUMMARY] t=338760   sub=1C success_rate_100=0.870 reward_mean_100=1.780 ep_len_mean_100=106.1 dist_mean_100=0.0485 xy_mean_100=0.0272 z_mean_100=0.0374
-[SUMMARY] t=339608   sub=1C success_rate_100=0.880 reward_mean_100=1.858 ep_len_mean_100=105.2 dist_mean_100=0.0473 xy_mean_100=0.0263 z_mean_100=0.0366
-[SUMMARY] t=340296   sub=1C success_rate_100=0.890 reward_mean_100=1.932 ep_len_mean_100=104.0 dist_mean_100=0.0458 xy_mean_100=0.0249 z_mean_100=0.0358
-[SUMMARY] t=340832   sub=1C success_rate_100=0.900 reward_mean_100=2.016 ep_len_mean_100=102.7 dist_mean_100=0.0449 xy_mean_100=0.0248 z_mean_100=0.0349
-[SUMMARY] t=341336   sub=1C success_rate_100=0.900 reward_mean_100=2.021 ep_len_mean_100=102.1 dist_mean_100=0.0449 xy_mean_100=0.0248 z_mean_100=0.0349
-[SUMMARY] t=341920   sub=1C success_rate_100=0.900 reward_mean_100=2.023 ep_len_mean_100=102.2 dist_mean_100=0.0449 xy_mean_100=0.0249 z_mean_100=0.0348
-[SUMMARY] t=342816   sub=1C success_rate_100=0.910 reward_mean_100=2.089 ep_len_mean_100=101.3 dist_mean_100=0.0437 xy_mean_100=0.0240 z_mean_100=0.0339
-[SUMMARY] t=343800   sub=1C success_rate_100=0.910 reward_mean_100=2.104 ep_len_mean_100=101.8 dist_mean_100=0.0437 xy_mean_100=0.0237 z_mean_100=0.0342
-[SUMMARY] t=344560   sub=1C success_rate_100=0.910 reward_mean_100=2.130 ep_len_mean_100=101.5 dist_mean_100=0.0437 xy_mean_100=0.0235 z_mean_100=0.0344
-[SUMMARY] t=345208   sub=1C success_rate_100=0.910 reward_mean_100=2.134 ep_len_mean_100=101.2 dist_mean_100=0.0437 xy_mean_100=0.0234 z_mean_100=0.0344
-[SUMMARY] t=345840   sub=1C success_rate_100=0.910 reward_mean_100=2.151 ep_len_mean_100=101.3 dist_mean_100=0.0437 xy_mean_100=0.0234 z_mean_100=0.0345
-[SUMMARY] t=346512   sub=1C success_rate_100=0.910 reward_mean_100=2.150 ep_len_mean_100=101.2 dist_mean_100=0.0437 xy_mean_100=0.0232 z_mean_100=0.0345
-[SUMMARY] t=347056   sub=1C success_rate_100=0.910 reward_mean_100=2.136 ep_len_mean_100=101.1 dist_mean_100=0.0437 xy_mean_100=0.0234 z_mean_100=0.0344
-[SUMMARY] t=347736   sub=1C success_rate_100=0.910 reward_mean_100=2.149 ep_len_mean_100=101.3 dist_mean_100=0.0437 xy_mean_100=0.0233 z_mean_100=0.0345
-[SUMMARY] t=348568   sub=1C success_rate_100=0.910 reward_mean_100=2.171 ep_len_mean_100=101.7 dist_mean_100=0.0437 xy_mean_100=0.0232 z_mean_100=0.0346
-[SUMMARY] t=349136   sub=1C success_rate_100=0.920 reward_mean_100=2.230 ep_len_mean_100=100.4 dist_mean_100=0.0425 xy_mean_100=0.0222 z_mean_100=0.0338
-[SUMMARY] t=349672   sub=1C success_rate_100=0.930 reward_mean_100=2.300 ep_len_mean_100=99.1 dist_mean_100=0.0415 xy_mean_100=0.0220 z_mean_100=0.0329
-[SUMMARY] t=350344   sub=1C success_rate_100=0.930 reward_mean_100=2.309 ep_len_mean_100=99.2 dist_mean_100=0.0414 xy_mean_100=0.0218 z_mean_100=0.0329
-[SUMMARY] t=350984   sub=1C success_rate_100=0.940 reward_mean_100=2.381 ep_len_mean_100=98.0 dist_mean_100=0.0403 xy_mean_100=0.0212 z_mean_100=0.0320
-[SUMMARY] t=351632   sub=1C success_rate_100=0.950 reward_mean_100=2.449 ep_len_mean_100=96.8 dist_mean_100=0.0397 xy_mean_100=0.0209 z_mean_100=0.0314
-[SUMMARY] t=352352   sub=1C success_rate_100=0.950 reward_mean_100=2.463 ep_len_mean_100=96.9 dist_mean_100=0.0397 xy_mean_100=0.0208 z_mean_100=0.0315
-[SUMMARY] t=353056   sub=1C success_rate_100=0.950 reward_mean_100=2.469 ep_len_mean_100=96.5 dist_mean_100=0.0397 xy_mean_100=0.0207 z_mean_100=0.0315
-[SUMMARY] t=353856   sub=1C success_rate_100=0.950 reward_mean_100=2.491 ep_len_mean_100=96.3 dist_mean_100=0.0397 xy_mean_100=0.0204 z_mean_100=0.0318
-[SUMMARY] t=354800   sub=1C success_rate_100=0.950 reward_mean_100=2.488 ep_len_mean_100=96.5 dist_mean_100=0.0397 xy_mean_100=0.0204 z_mean_100=0.0318
-[SUMMARY] t=355352   sub=1C success_rate_100=0.950 reward_mean_100=2.485 ep_len_mean_100=96.2 dist_mean_100=0.0397 xy_mean_100=0.0202 z_mean_100=0.0318
-[SUMMARY] t=355928   sub=1C success_rate_100=0.950 reward_mean_100=2.497 ep_len_mean_100=96.3 dist_mean_100=0.0397 xy_mean_100=0.0202 z_mean_100=0.0318
-[SUMMARY] t=356464   sub=1C success_rate_100=0.950 reward_mean_100=2.515 ep_len_mean_100=96.2 dist_mean_100=0.0397 xy_mean_100=0.0199 z_mean_100=0.0321
-[SUMMARY] t=357112   sub=1C success_rate_100=0.950 reward_mean_100=2.533 ep_len_mean_100=95.8 dist_mean_100=0.0397 xy_mean_100=0.0198 z_mean_100=0.0322
-[SUMMARY] t=357648   sub=1C success_rate_100=0.960 reward_mean_100=2.604 ep_len_mean_100=94.5 dist_mean_100=0.0381 xy_mean_100=0.0183 z_mean_100=0.0315
-[SUMMARY] t=358368   sub=1C success_rate_100=0.960 reward_mean_100=2.612 ep_len_mean_100=94.2 dist_mean_100=0.0381 xy_mean_100=0.0182 z_mean_100=0.0316
-[SUMMARY] t=358920   sub=1C success_rate_100=0.960 reward_mean_100=2.624 ep_len_mean_100=94.1 dist_mean_100=0.0382 xy_mean_100=0.0181 z_mean_100=0.0317
-[SUMMARY] t=359632   sub=1C success_rate_100=0.960 reward_mean_100=2.626 ep_len_mean_100=93.9 dist_mean_100=0.0382 xy_mean_100=0.0179 z_mean_100=0.0317
-[SUMMARY] t=360592   sub=1C success_rate_100=0.960 reward_mean_100=2.626 ep_len_mean_100=94.2 dist_mean_100=0.0381 xy_mean_100=0.0178 z_mean_100=0.0318
-[SUMMARY] t=361192   sub=1C success_rate_100=0.960 reward_mean_100=2.633 ep_len_mean_100=94.1 dist_mean_100=0.0382 xy_mean_100=0.0177 z_mean_100=0.0319
+[SUMMARY] t=205192   sub=1C   success_rate_100=1.000 reward_mean_100=3.185 ep_len_mean_100=110.0 dist_mean_100=0.0193 xy_mean_100=0.0091 z_mean_100=0.0170 stable_mean_100=2.00 yaw_mean_100=0.0071
+[SUMMARY] t=206712   sub=1C   success_rate_100=0.500 reward_mean_100=1.138 ep_len_mean_100=150.0 dist_mean_100=0.0401 xy_mean_100=0.0312 z_mean_100=0.0231 stable_mean_100=1.00 yaw_mean_100=0.0398
+[SUMMARY] t=207776   sub=1C   success_rate_100=0.667 reward_mean_100=1.843 ep_len_mean_100=144.3 dist_mean_100=0.0344 xy_mean_100=0.0255 z_mean_100=0.0215 stable_mean_100=1.33 yaw_mean_100=0.0404
+[SUMMARY] t=209296   sub=1C   success_rate_100=0.500 reward_mean_100=1.399 ep_len_mean_100=155.8 dist_mean_100=0.0437 xy_mean_100=0.0354 z_mean_100=0.0236 stable_mean_100=1.00 yaw_mean_100=0.0414
+[SUMMARY] t=210312   sub=1C   success_rate_100=0.600 reward_mean_100=1.757 ep_len_mean_100=150.0 dist_mean_100=0.0392 xy_mean_100=0.0308 z_mean_100=0.0223 stable_mean_100=1.20 yaw_mean_100=0.0492
+[SUMMARY] t=211832   sub=1C   success_rate_100=0.500 reward_mean_100=1.361 ep_len_mean_100=156.7 dist_mean_100=0.0423 xy_mean_100=0.0347 z_mean_100=0.0221 stable_mean_100=1.00 yaw_mean_100=0.0469
+[SUMMARY] t=213352   sub=1C   success_rate_100=0.429 reward_mean_100=0.763 ep_len_mean_100=161.4 dist_mean_100=0.0415 xy_mean_100=0.0328 z_mean_100=0.0232 stable_mean_100=0.86 yaw_mean_100=0.0561
+[SUMMARY] t=214248   sub=1C   success_rate_100=0.500 reward_mean_100=1.094 ep_len_mean_100=155.2 dist_mean_100=0.0393 xy_mean_100=0.0304 z_mean_100=0.0228 stable_mean_100=1.00 yaw_mean_100=0.0539
+[SUMMARY] t=215120   sub=1C   success_rate_100=0.556 reward_mean_100=1.313 ep_len_mean_100=150.1 dist_mean_100=0.0372 xy_mean_100=0.0275 z_mean_100=0.0225 stable_mean_100=1.11 yaw_mean_100=0.0525
+[SUMMARY] t=216640   sub=1C   success_rate_100=0.500 reward_mean_100=1.199 ep_len_mean_100=154.1 dist_mean_100=0.0396 xy_mean_100=0.0301 z_mean_100=0.0232 stable_mean_100=1.00 yaw_mean_100=0.0534
+[SUMMARY] t=217600   sub=1C   success_rate_100=0.545 reward_mean_100=1.303 ep_len_mean_100=151.0 dist_mean_100=0.0381 xy_mean_100=0.0287 z_mean_100=0.0227 stable_mean_100=1.09 yaw_mean_100=0.0522
+[SUMMARY] t=218496   sub=1C   success_rate_100=0.583 reward_mean_100=1.412 ep_len_mean_100=147.8 dist_mean_100=0.0367 xy_mean_100=0.0274 z_mean_100=0.0222 stable_mean_100=1.17 yaw_mean_100=0.0483
+[SUMMARY] t=220016   sub=1C   success_rate_100=0.538 reward_mean_100=1.259 ep_len_mean_100=151.0 dist_mean_100=0.0379 xy_mean_100=0.0286 z_mean_100=0.0228 stable_mean_100=1.08 yaw_mean_100=0.0481
+[SUMMARY] t=221056   sub=1C   success_rate_100=0.571 reward_mean_100=1.363 ep_len_mean_100=149.5 dist_mean_100=0.0364 xy_mean_100=0.0276 z_mean_100=0.0218 stable_mean_100=1.14 yaw_mean_100=0.0467
+[SUMMARY] t=222576   sub=1C   success_rate_100=0.533 reward_mean_100=1.198 ep_len_mean_100=152.2 dist_mean_100=0.0372 xy_mean_100=0.0283 z_mean_100=0.0223 stable_mean_100=1.07 yaw_mean_100=0.0505
+[SUMMARY] t=224096   sub=1C   success_rate_100=0.500 reward_mean_100=0.976 ep_len_mean_100=154.6 dist_mean_100=0.0379 xy_mean_100=0.0289 z_mean_100=0.0228 stable_mean_100=1.00 yaw_mean_100=0.0475
+[SUMMARY] t=225192   sub=1C   success_rate_100=0.529 reward_mean_100=1.115 ep_len_mean_100=153.5 dist_mean_100=0.0369 xy_mean_100=0.0278 z_mean_100=0.0225 stable_mean_100=1.06 yaw_mean_100=0.0460
+[SUMMARY] t=226160   sub=1C   success_rate_100=0.556 reward_mean_100=1.233 ep_len_mean_100=151.7 dist_mean_100=0.0357 xy_mean_100=0.0270 z_mean_100=0.0217 stable_mean_100=1.11 yaw_mean_100=0.0466
+[SUMMARY] t=227264   sub=1C   success_rate_100=0.579 reward_mean_100=1.335 ep_len_mean_100=151.0 dist_mean_100=0.0349 xy_mean_100=0.0259 z_mean_100=0.0215 stable_mean_100=1.16 yaw_mean_100=0.0459
+[SUMMARY] t=228784   sub=1C   success_rate_100=0.550 reward_mean_100=1.255 ep_len_mean_100=152.9 dist_mean_100=0.0362 xy_mean_100=0.0274 z_mean_100=0.0219 stable_mean_100=1.10 yaw_mean_100=0.0441
+[SUMMARY] t=230304   sub=1C   success_rate_100=0.524 reward_mean_100=1.131 ep_len_mean_100=154.7 dist_mean_100=0.0370 xy_mean_100=0.0281 z_mean_100=0.0222 stable_mean_100=1.05 yaw_mean_100=0.0439
+[SUMMARY] t=231824   sub=1C   success_rate_100=0.500 reward_mean_100=1.037 ep_len_mean_100=156.3 dist_mean_100=0.0371 xy_mean_100=0.0280 z_mean_100=0.0226 stable_mean_100=1.00 yaw_mean_100=0.0448
+[SUMMARY] t=232592   sub=1C   success_rate_100=0.522 reward_mean_100=1.127 ep_len_mean_100=153.7 dist_mean_100=0.0363 xy_mean_100=0.0275 z_mean_100=0.0222 stable_mean_100=1.04 yaw_mean_100=0.0447
+[SUMMARY] t=234112   sub=1C   success_rate_100=0.500 reward_mean_100=1.048 ep_len_mean_100=155.2 dist_mean_100=0.0367 xy_mean_100=0.0277 z_mean_100=0.0225 stable_mean_100=1.00 yaw_mean_100=0.0452
+[SUMMARY] t=235096   sub=1C   success_rate_100=0.520 reward_mean_100=1.121 ep_len_mean_100=153.9 dist_mean_100=0.0358 xy_mean_100=0.0271 z_mean_100=0.0217 stable_mean_100=1.04 yaw_mean_100=0.0441
+[SUMMARY] t=236616   sub=1C   success_rate_100=0.500 reward_mean_100=1.069 ep_len_mean_100=155.3 dist_mean_100=0.0374 xy_mean_100=0.0289 z_mean_100=0.0218 stable_mean_100=1.00 yaw_mean_100=0.0452
+[SUMMARY] t=238136   sub=1C   success_rate_100=0.481 reward_mean_100=0.966 ep_len_mean_100=156.6 dist_mean_100=0.0374 xy_mean_100=0.0288 z_mean_100=0.0221 stable_mean_100=0.96 yaw_mean_100=0.0464
+[SUMMARY] t=238960   sub=1C   success_rate_100=0.500 reward_mean_100=1.046 ep_len_mean_100=154.7 dist_mean_100=0.0368 xy_mean_100=0.0281 z_mean_100=0.0219 stable_mean_100=1.00 yaw_mean_100=0.0455
+[SUMMARY] t=239840   sub=1C   success_rate_100=0.517 reward_mean_100=1.118 ep_len_mean_100=153.1 dist_mean_100=0.0362 xy_mean_100=0.0276 z_mean_100=0.0216 stable_mean_100=1.03 yaw_mean_100=0.0455
+[SUMMARY] t=241360   sub=1C   success_rate_100=0.500 reward_mean_100=0.982 ep_len_mean_100=154.4 dist_mean_100=0.0366 xy_mean_100=0.0280 z_mean_100=0.0219 stable_mean_100=1.00 yaw_mean_100=0.0448
+[SUMMARY] t=242344   sub=1C   success_rate_100=0.516 reward_mean_100=1.057 ep_len_mean_100=153.4 dist_mean_100=0.0361 xy_mean_100=0.0275 z_mean_100=0.0217 stable_mean_100=1.03 yaw_mean_100=0.0438
+[SUMMARY] t=243120   sub=1C   success_rate_100=0.531 reward_mean_100=1.129 ep_len_mean_100=151.6 dist_mean_100=0.0355 xy_mean_100=0.0268 z_mean_100=0.0216 stable_mean_100=1.06 yaw_mean_100=0.0430
+[SUMMARY] t=244080   sub=1C   success_rate_100=0.545 reward_mean_100=1.197 ep_len_mean_100=150.6 dist_mean_100=0.0352 xy_mean_100=0.0264 z_mean_100=0.0215 stable_mean_100=1.09 yaw_mean_100=0.0421
+[SUMMARY] t=245600   sub=1C   success_rate_100=0.529 reward_mean_100=1.151 ep_len_mean_100=151.8 dist_mean_100=0.0352 xy_mean_100=0.0263 z_mean_100=0.0218 stable_mean_100=1.06 yaw_mean_100=0.0434
+[SUMMARY] t=247120   sub=1C   success_rate_100=0.514 reward_mean_100=1.110 ep_len_mean_100=152.9 dist_mean_100=0.0357 xy_mean_100=0.0268 z_mean_100=0.0220 stable_mean_100=1.03 yaw_mean_100=0.0423
+[SUMMARY] t=248120   sub=1C   success_rate_100=0.528 reward_mean_100=1.173 ep_len_mean_100=152.1 dist_mean_100=0.0354 xy_mean_100=0.0264 z_mean_100=0.0219 stable_mean_100=1.06 yaw_mean_100=0.0420
+[SUMMARY] t=249152   sub=1C   success_rate_100=0.541 reward_mean_100=1.220 ep_len_mean_100=151.5 dist_mean_100=0.0349 xy_mean_100=0.0260 z_mean_100=0.0215 stable_mean_100=1.08 yaw_mean_100=0.0409
+[SUMMARY] t=250272   sub=1C   success_rate_100=0.553 reward_mean_100=1.274 ep_len_mean_100=151.2 dist_mean_100=0.0343 xy_mean_100=0.0257 z_mean_100=0.0210 stable_mean_100=1.11 yaw_mean_100=0.0405
+[SUMMARY] t=251072   sub=1C   success_rate_100=0.564 reward_mean_100=1.325 ep_len_mean_100=149.9 dist_mean_100=0.0339 xy_mean_100=0.0253 z_mean_100=0.0210 stable_mean_100=1.13 yaw_mean_100=0.0403
+[SUMMARY] t=251944   sub=1C   success_rate_100=0.575 reward_mean_100=1.375 ep_len_mean_100=148.8 dist_mean_100=0.0337 xy_mean_100=0.0250 z_mean_100=0.0209 stable_mean_100=1.15 yaw_mean_100=0.0400
+[SUMMARY] t=253464   sub=1C   success_rate_100=0.561 reward_mean_100=1.287 ep_len_mean_100=149.9 dist_mean_100=0.0338 xy_mean_100=0.0250 z_mean_100=0.0211 stable_mean_100=1.12 yaw_mean_100=0.0398
+[SUMMARY] t=254984   sub=1C   success_rate_100=0.548 reward_mean_100=1.229 ep_len_mean_100=150.8 dist_mean_100=0.0338 xy_mean_100=0.0248 z_mean_100=0.0213 stable_mean_100=1.10 yaw_mean_100=0.0388
+[SUMMARY] t=256504   sub=1C   success_rate_100=0.535 reward_mean_100=1.187 ep_len_mean_100=151.7 dist_mean_100=0.0339 xy_mean_100=0.0247 z_mean_100=0.0215 stable_mean_100=1.07 yaw_mean_100=0.0393
+[SUMMARY] t=257720   sub=1C   success_rate_100=0.545 reward_mean_100=1.237 ep_len_mean_100=151.7 dist_mean_100=0.0335 xy_mean_100=0.0242 z_mean_100=0.0214 stable_mean_100=1.09 yaw_mean_100=0.0394
+[SUMMARY] t=258816   sub=1C   success_rate_100=0.556 reward_mean_100=1.278 ep_len_mean_100=151.4 dist_mean_100=0.0332 xy_mean_100=0.0238 z_mean_100=0.0213 stable_mean_100=1.11 yaw_mean_100=0.0386
+[SUMMARY] t=259752   sub=1C   success_rate_100=0.565 reward_mean_100=1.321 ep_len_mean_100=150.7 dist_mean_100=0.0329 xy_mean_100=0.0235 z_mean_100=0.0213 stable_mean_100=1.13 yaw_mean_100=0.0381
+[SUMMARY] t=260648   sub=1C   success_rate_100=0.574 reward_mean_100=1.364 ep_len_mean_100=149.8 dist_mean_100=0.0326 xy_mean_100=0.0232 z_mean_100=0.0212 stable_mean_100=1.15 yaw_mean_100=0.0386
+[SUMMARY] t=261672   sub=1C   success_rate_100=0.583 reward_mean_100=1.404 ep_len_mean_100=149.4 dist_mean_100=0.0324 xy_mean_100=0.0230 z_mean_100=0.0211 stable_mean_100=1.17 yaw_mean_100=0.0388
+[SUMMARY] t=263192   sub=1C   success_rate_100=0.571 reward_mean_100=1.343 ep_len_mean_100=150.2 dist_mean_100=0.0324 xy_mean_100=0.0229 z_mean_100=0.0213 stable_mean_100=1.14 yaw_mean_100=0.0383
+[SUMMARY] t=264712   sub=1C   success_rate_100=0.560 reward_mean_100=1.290 ep_len_mean_100=151.0 dist_mean_100=0.0327 xy_mean_100=0.0231 z_mean_100=0.0214 stable_mean_100=1.12 yaw_mean_100=0.0376
+[SUMMARY] t=266232   sub=1C   success_rate_100=0.549 reward_mean_100=1.218 ep_len_mean_100=151.8 dist_mean_100=0.0327 xy_mean_100=0.0230 z_mean_100=0.0216 stable_mean_100=1.10 yaw_mean_100=0.0370
+[SUMMARY] t=267752   sub=1C   success_rate_100=0.538 reward_mean_100=1.161 ep_len_mean_100=152.5 dist_mean_100=0.0329 xy_mean_100=0.0232 z_mean_100=0.0218 stable_mean_100=1.08 yaw_mean_100=0.0371
+[SUMMARY] t=269272   sub=1C   success_rate_100=0.528 reward_mean_100=1.097 ep_len_mean_100=153.2 dist_mean_100=0.0329 xy_mean_100=0.0230 z_mean_100=0.0219 stable_mean_100=1.06 yaw_mean_100=0.0372
+[SUMMARY] t=270328   sub=1C   success_rate_100=0.537 reward_mean_100=1.133 ep_len_mean_100=152.8 dist_mean_100=0.0327 xy_mean_100=0.0228 z_mean_100=0.0218 stable_mean_100=1.07 yaw_mean_100=0.0373
+[SUMMARY] t=271160   sub=1C   success_rate_100=0.545 reward_mean_100=1.173 ep_len_mean_100=151.9 dist_mean_100=0.0325 xy_mean_100=0.0226 z_mean_100=0.0218 stable_mean_100=1.09 yaw_mean_100=0.0371
+[SUMMARY] t=272480   sub=1C   success_rate_100=0.554 reward_mean_100=1.211 ep_len_mean_100=152.2 dist_mean_100=0.0322 xy_mean_100=0.0224 z_mean_100=0.0216 stable_mean_100=1.11 yaw_mean_100=0.0366
+[SUMMARY] t=273336   sub=1C   success_rate_100=0.561 reward_mean_100=1.245 ep_len_mean_100=151.4 dist_mean_100=0.0321 xy_mean_100=0.0223 z_mean_100=0.0215 stable_mean_100=1.12 yaw_mean_100=0.0365
+[SUMMARY] t=274208   sub=1C   success_rate_100=0.569 reward_mean_100=1.283 ep_len_mean_100=150.6 dist_mean_100=0.0318 xy_mean_100=0.0220 z_mean_100=0.0214 stable_mean_100=1.14 yaw_mean_100=0.0361
+[SUMMARY] t=274976   sub=1C   success_rate_100=0.576 reward_mean_100=1.318 ep_len_mean_100=149.7 dist_mean_100=0.0316 xy_mean_100=0.0218 z_mean_100=0.0214 stable_mean_100=1.15 yaw_mean_100=0.0357
+[SUMMARY] t=275752   sub=1C   success_rate_100=0.583 reward_mean_100=1.351 ep_len_mean_100=148.8 dist_mean_100=0.0314 xy_mean_100=0.0215 z_mean_100=0.0213 stable_mean_100=1.17 yaw_mean_100=0.0356
+[SUMMARY] t=276784   sub=1C   success_rate_100=0.590 reward_mean_100=1.383 ep_len_mean_100=148.5 dist_mean_100=0.0313 xy_mean_100=0.0214 z_mean_100=0.0212 stable_mean_100=1.18 yaw_mean_100=0.0358
+[SUMMARY] t=277680   sub=1C   success_rate_100=0.597 reward_mean_100=1.415 ep_len_mean_100=147.9 dist_mean_100=0.0311 xy_mean_100=0.0213 z_mean_100=0.0212 stable_mean_100=1.19 yaw_mean_100=0.0354
+[SUMMARY] t=278624   sub=1C   success_rate_100=0.603 reward_mean_100=1.446 ep_len_mean_100=147.4 dist_mean_100=0.0309 xy_mean_100=0.0210 z_mean_100=0.0211 stable_mean_100=1.21 yaw_mean_100=0.0351
+[SUMMARY] t=279616   sub=1C   success_rate_100=0.609 reward_mean_100=1.473 ep_len_mean_100=147.1 dist_mean_100=0.0308 xy_mean_100=0.0209 z_mean_100=0.0211 stable_mean_100=1.22 yaw_mean_100=0.0351
+[SUMMARY] t=280600   sub=1C   success_rate_100=0.615 reward_mean_100=1.502 ep_len_mean_100=146.7 dist_mean_100=0.0306 xy_mean_100=0.0207 z_mean_100=0.0210 stable_mean_100=1.23 yaw_mean_100=0.0353
+[SUMMARY] t=281440   sub=1C   success_rate_100=0.621 reward_mean_100=1.531 ep_len_mean_100=146.1 dist_mean_100=0.0305 xy_mean_100=0.0205 z_mean_100=0.0210 stable_mean_100=1.24 yaw_mean_100=0.0351
+[SUMMARY] t=282504   sub=1C   success_rate_100=0.627 reward_mean_100=1.556 ep_len_mean_100=145.9 dist_mean_100=0.0303 xy_mean_100=0.0203 z_mean_100=0.0209 stable_mean_100=1.25 yaw_mean_100=0.0351
+[SUMMARY] t=283560   sub=1C   success_rate_100=0.632 reward_mean_100=1.579 ep_len_mean_100=145.7 dist_mean_100=0.0301 xy_mean_100=0.0202 z_mean_100=0.0207 stable_mean_100=1.26 yaw_mean_100=0.0346
+[SUMMARY] t=284416   sub=1C   success_rate_100=0.638 reward_mean_100=1.602 ep_len_mean_100=145.1 dist_mean_100=0.0299 xy_mean_100=0.0201 z_mean_100=0.0207 stable_mean_100=1.28 yaw_mean_100=0.0345
+[SUMMARY] t=285936   sub=1C   success_rate_100=0.629 reward_mean_100=1.545 ep_len_mean_100=145.8 dist_mean_100=0.0299 xy_mean_100=0.0199 z_mean_100=0.0208 stable_mean_100=1.26 yaw_mean_100=0.0343
+[SUMMARY] t=287456   sub=1C   success_rate_100=0.620 reward_mean_100=1.492 ep_len_mean_100=146.4 dist_mean_100=0.0301 xy_mean_100=0.0200 z_mean_100=0.0209 stable_mean_100=1.24 yaw_mean_100=0.0343
+[SUMMARY] t=288408   sub=1C   success_rate_100=0.625 reward_mean_100=1.516 ep_len_mean_100=146.0 dist_mean_100=0.0300 xy_mean_100=0.0199 z_mean_100=0.0209 stable_mean_100=1.25 yaw_mean_100=0.0347
+[SUMMARY] t=289248   sub=1C   success_rate_100=0.630 reward_mean_100=1.541 ep_len_mean_100=145.4 dist_mean_100=0.0299 xy_mean_100=0.0198 z_mean_100=0.0209 stable_mean_100=1.26 yaw_mean_100=0.0348
+[SUMMARY] t=290200   sub=1C   success_rate_100=0.635 reward_mean_100=1.567 ep_len_mean_100=145.1 dist_mean_100=0.0298 xy_mean_100=0.0197 z_mean_100=0.0208 stable_mean_100=1.27 yaw_mean_100=0.0347
+[SUMMARY] t=291392   sub=1C   success_rate_100=0.640 reward_mean_100=1.590 ep_len_mean_100=145.1 dist_mean_100=0.0297 xy_mean_100=0.0196 z_mean_100=0.0208 stable_mean_100=1.28 yaw_mean_100=0.0354
+[SUMMARY] t=292440   sub=1C   success_rate_100=0.645 reward_mean_100=1.615 ep_len_mean_100=144.9 dist_mean_100=0.0296 xy_mean_100=0.0195 z_mean_100=0.0208 stable_mean_100=1.29 yaw_mean_100=0.0350
+[SUMMARY] t=293960   sub=1C   success_rate_100=0.636 reward_mean_100=1.585 ep_len_mean_100=145.5 dist_mean_100=0.0299 xy_mean_100=0.0199 z_mean_100=0.0209 stable_mean_100=1.27 yaw_mean_100=0.0348
+[SUMMARY] t=294856   sub=1C   success_rate_100=0.641 reward_mean_100=1.606 ep_len_mean_100=145.1 dist_mean_100=0.0298 xy_mean_100=0.0197 z_mean_100=0.0208 stable_mean_100=1.28 yaw_mean_100=0.0344
+[SUMMARY] t=296088   sub=1C   success_rate_100=0.646 reward_mean_100=1.628 ep_len_mean_100=145.2 dist_mean_100=0.0297 xy_mean_100=0.0196 z_mean_100=0.0207 stable_mean_100=1.29 yaw_mean_100=0.0343
+[SUMMARY] t=296888   sub=1C   success_rate_100=0.650 reward_mean_100=1.648 ep_len_mean_100=144.7 dist_mean_100=0.0295 xy_mean_100=0.0195 z_mean_100=0.0207 stable_mean_100=1.30 yaw_mean_100=0.0340
+[SUMMARY] t=297816   sub=1C   success_rate_100=0.654 reward_mean_100=1.670 ep_len_mean_100=144.3 dist_mean_100=0.0294 xy_mean_100=0.0193 z_mean_100=0.0207 stable_mean_100=1.31 yaw_mean_100=0.0345
+[SUMMARY] t=298464   sub=1C   success_rate_100=0.659 reward_mean_100=1.689 ep_len_mean_100=143.5 dist_mean_100=0.0293 xy_mean_100=0.0192 z_mean_100=0.0206 stable_mean_100=1.32 yaw_mean_100=0.0344
+[SUMMARY] t=299184   sub=1C   success_rate_100=0.663 reward_mean_100=1.707 ep_len_mean_100=142.9 dist_mean_100=0.0292 xy_mean_100=0.0190 z_mean_100=0.0206 stable_mean_100=1.33 yaw_mean_100=0.0342
+[SUMMARY] t=299992   sub=1C   success_rate_100=0.667 reward_mean_100=1.726 ep_len_mean_100=142.4 dist_mean_100=0.0291 xy_mean_100=0.0190 z_mean_100=0.0206 stable_mean_100=1.33 yaw_mean_100=0.0347
+[SUMMARY] t=300928   sub=1C   success_rate_100=0.671 reward_mean_100=1.745 ep_len_mean_100=142.1 dist_mean_100=0.0290 xy_mean_100=0.0189 z_mean_100=0.0205 stable_mean_100=1.34 yaw_mean_100=0.0349
+[SUMMARY] t=302136   sub=1C   success_rate_100=0.674 reward_mean_100=1.764 ep_len_mean_100=142.2 dist_mean_100=0.0289 xy_mean_100=0.0188 z_mean_100=0.0205 stable_mean_100=1.35 yaw_mean_100=0.0347
+[SUMMARY] t=302904   sub=1C   success_rate_100=0.678 reward_mean_100=1.780 ep_len_mean_100=141.7 dist_mean_100=0.0288 xy_mean_100=0.0187 z_mean_100=0.0204 stable_mean_100=1.36 yaw_mean_100=0.0344
+[SUMMARY] t=303816   sub=1C   success_rate_100=0.682 reward_mean_100=1.799 ep_len_mean_100=141.3 dist_mean_100=0.0287 xy_mean_100=0.0185 z_mean_100=0.0204 stable_mean_100=1.36 yaw_mean_100=0.0342
+[SUMMARY] t=304720   sub=1C   success_rate_100=0.685 reward_mean_100=1.816 ep_len_mean_100=141.0 dist_mean_100=0.0286 xy_mean_100=0.0185 z_mean_100=0.0204 stable_mean_100=1.37 yaw_mean_100=0.0346
+[SUMMARY] t=305576   sub=1C   success_rate_100=0.689 reward_mean_100=1.833 ep_len_mean_100=140.6 dist_mean_100=0.0285 xy_mean_100=0.0183 z_mean_100=0.0204 stable_mean_100=1.38 yaw_mean_100=0.0344
+[SUMMARY] t=306616   sub=1C   success_rate_100=0.692 reward_mean_100=1.850 ep_len_mean_100=140.5 dist_mean_100=0.0284 xy_mean_100=0.0182 z_mean_100=0.0203 stable_mean_100=1.38 yaw_mean_100=0.0341
+[SUMMARY] t=307496   sub=1C   success_rate_100=0.696 reward_mean_100=1.865 ep_len_mean_100=140.2 dist_mean_100=0.0283 xy_mean_100=0.0181 z_mean_100=0.0203 stable_mean_100=1.39 yaw_mean_100=0.0340
+[SUMMARY] t=308472   sub=1C   success_rate_100=0.699 reward_mean_100=1.879 ep_len_mean_100=140.0 dist_mean_100=0.0282 xy_mean_100=0.0181 z_mean_100=0.0203 stable_mean_100=1.40 yaw_mean_100=0.0340
+[SUMMARY] t=309584   sub=1C   success_rate_100=0.702 reward_mean_100=1.892 ep_len_mean_100=140.0 dist_mean_100=0.0282 xy_mean_100=0.0180 z_mean_100=0.0202 stable_mean_100=1.40 yaw_mean_100=0.0337
+[SUMMARY] t=310392   sub=1C   success_rate_100=0.705 reward_mean_100=1.907 ep_len_mean_100=139.6 dist_mean_100=0.0281 xy_mean_100=0.0179 z_mean_100=0.0202 stable_mean_100=1.41 yaw_mean_100=0.0335
+[SUMMARY] t=311328   sub=1C   success_rate_100=0.708 reward_mean_100=1.924 ep_len_mean_100=139.3 dist_mean_100=0.0280 xy_mean_100=0.0178 z_mean_100=0.0202 stable_mean_100=1.42 yaw_mean_100=0.0337
+[SUMMARY] t=312472   sub=1C   success_rate_100=0.711 reward_mean_100=1.940 ep_len_mean_100=139.4 dist_mean_100=0.0279 xy_mean_100=0.0177 z_mean_100=0.0202 stable_mean_100=1.42 yaw_mean_100=0.0337
+[SUMMARY] t=313088   sub=1C   success_rate_100=0.714 reward_mean_100=1.955 ep_len_mean_100=138.7 dist_mean_100=0.0278 xy_mean_100=0.0176 z_mean_100=0.0201 stable_mean_100=1.43 yaw_mean_100=0.0337
+[SUMMARY] t=314008   sub=1C   success_rate_100=0.717 reward_mean_100=1.970 ep_len_mean_100=138.5 dist_mean_100=0.0277 xy_mean_100=0.0175 z_mean_100=0.0201 stable_mean_100=1.43 yaw_mean_100=0.0339
+[SUMMARY] t=315528   sub=1C   success_rate_100=0.710 reward_mean_100=1.936 ep_len_mean_100=139.0 dist_mean_100=0.0278 xy_mean_100=0.0176 z_mean_100=0.0202 stable_mean_100=1.42 yaw_mean_100=0.0337
+[SUMMARY] t=316376   sub=1C   success_rate_100=0.710 reward_mean_100=1.938 ep_len_mean_100=139.0 dist_mean_100=0.0278 xy_mean_100=0.0176 z_mean_100=0.0202 stable_mean_100=1.42 yaw_mean_100=0.0339
+[SUMMARY] t=317544   sub=1C   success_rate_100=0.720 reward_mean_100=1.975 ep_len_mean_100=138.5 dist_mean_100=0.0274 xy_mean_100=0.0172 z_mean_100=0.0200 stable_mean_100=1.44 yaw_mean_100=0.0332
+[SUMMARY] t=318448   sub=1C   success_rate_100=0.720 reward_mean_100=1.977 ep_len_mean_100=138.3 dist_mean_100=0.0274 xy_mean_100=0.0172 z_mean_100=0.0200 stable_mean_100=1.44 yaw_mean_100=0.0337
+[SUMMARY] t=319376   sub=1C   success_rate_100=0.730 reward_mean_100=2.007 ep_len_mean_100=137.6 dist_mean_100=0.0268 xy_mean_100=0.0167 z_mean_100=0.0198 stable_mean_100=1.46 yaw_mean_100=0.0335
+[SUMMARY] t=320072   sub=1C   success_rate_100=0.730 reward_mean_100=2.009 ep_len_mean_100=137.2 dist_mean_100=0.0268 xy_mean_100=0.0166 z_mean_100=0.0198 stable_mean_100=1.46 yaw_mean_100=0.0331
+[SUMMARY] t=321000   sub=1C   success_rate_100=0.740 reward_mean_100=2.048 ep_len_mean_100=136.5 dist_mean_100=0.0264 xy_mean_100=0.0162 z_mean_100=0.0197 stable_mean_100=1.48 yaw_mean_100=0.0333
+[SUMMARY] t=322000   sub=1C   success_rate_100=0.750 reward_mean_100=2.112 ep_len_mean_100=135.8 dist_mean_100=0.0263 xy_mean_100=0.0161 z_mean_100=0.0196 stable_mean_100=1.50 yaw_mean_100=0.0324
+[SUMMARY] t=322864   sub=1C   success_rate_100=0.750 reward_mean_100=2.109 ep_len_mean_100=135.8 dist_mean_100=0.0263 xy_mean_100=0.0161 z_mean_100=0.0196 stable_mean_100=1.50 yaw_mean_100=0.0325
+[SUMMARY] t=323680   sub=1C   success_rate_100=0.750 reward_mean_100=2.114 ep_len_mean_100=135.7 dist_mean_100=0.0262 xy_mean_100=0.0161 z_mean_100=0.0196 stable_mean_100=1.50 yaw_mean_100=0.0322
+[SUMMARY] t=324568   sub=1C   success_rate_100=0.760 reward_mean_100=2.147 ep_len_mean_100=134.9 dist_mean_100=0.0258 xy_mean_100=0.0156 z_mean_100=0.0195 stable_mean_100=1.52 yaw_mean_100=0.0323
+[SUMMARY] t=325760   sub=1C   success_rate_100=0.760 reward_mean_100=2.148 ep_len_mean_100=135.2 dist_mean_100=0.0258 xy_mean_100=0.0156 z_mean_100=0.0195 stable_mean_100=1.52 yaw_mean_100=0.0326
+[SUMMARY] t=326472   sub=1C   success_rate_100=0.760 reward_mean_100=2.155 ep_len_mean_100=135.0 dist_mean_100=0.0258 xy_mean_100=0.0156 z_mean_100=0.0195 stable_mean_100=1.52 yaw_mean_100=0.0329
+[SUMMARY] t=327216   sub=1C   success_rate_100=0.770 reward_mean_100=2.193 ep_len_mean_100=134.0 dist_mean_100=0.0255 xy_mean_100=0.0153 z_mean_100=0.0194 stable_mean_100=1.54 yaw_mean_100=0.0329
+[SUMMARY] t=328184   sub=1C   success_rate_100=0.770 reward_mean_100=2.201 ep_len_mean_100=133.9 dist_mean_100=0.0255 xy_mean_100=0.0151 z_mean_100=0.0195 stable_mean_100=1.54 yaw_mean_100=0.0326
+[SUMMARY] t=329056   sub=1C   success_rate_100=0.780 reward_mean_100=2.246 ep_len_mean_100=133.1 dist_mean_100=0.0253 xy_mean_100=0.0149 z_mean_100=0.0193 stable_mean_100=1.56 yaw_mean_100=0.0322
+[SUMMARY] t=330112   sub=1C   success_rate_100=0.790 reward_mean_100=2.304 ep_len_mean_100=132.5 dist_mean_100=0.0250 xy_mean_100=0.0146 z_mean_100=0.0192 stable_mean_100=1.58 yaw_mean_100=0.0328
+[SUMMARY] t=330936   sub=1C   success_rate_100=0.790 reward_mean_100=2.303 ep_len_mean_100=132.2 dist_mean_100=0.0250 xy_mean_100=0.0146 z_mean_100=0.0192 stable_mean_100=1.58 yaw_mean_100=0.0330
+[SUMMARY] t=331952   sub=1C   success_rate_100=0.790 reward_mean_100=2.302 ep_len_mean_100=132.2 dist_mean_100=0.0250 xy_mean_100=0.0145 z_mean_100=0.0193 stable_mean_100=1.58 yaw_mean_100=0.0326
+[SUMMARY] t=332792   sub=1C   success_rate_100=0.790 reward_mean_100=2.305 ep_len_mean_100=131.9 dist_mean_100=0.0250 xy_mean_100=0.0146 z_mean_100=0.0193 stable_mean_100=1.58 yaw_mean_100=0.0327
+[SUMMARY] t=333736   sub=1C   success_rate_100=0.800 reward_mean_100=2.343 ep_len_mean_100=131.2 dist_mean_100=0.0246 xy_mean_100=0.0140 z_mean_100=0.0192 stable_mean_100=1.60 yaw_mean_100=0.0332
+[SUMMARY] t=335256   sub=1C   success_rate_100=0.800 reward_mean_100=2.340 ep_len_mean_100=131.2 dist_mean_100=0.0245 xy_mean_100=0.0139 z_mean_100=0.0192 stable_mean_100=1.60 yaw_mean_100=0.0336
+[SUMMARY] t=336016   sub=1C   success_rate_100=0.810 reward_mean_100=2.382 ep_len_mean_100=130.2 dist_mean_100=0.0243 xy_mean_100=0.0137 z_mean_100=0.0191 stable_mean_100=1.62 yaw_mean_100=0.0337
+[SUMMARY] t=336816   sub=1C   success_rate_100=0.810 reward_mean_100=2.384 ep_len_mean_100=130.3 dist_mean_100=0.0242 xy_mean_100=0.0137 z_mean_100=0.0190 stable_mean_100=1.62 yaw_mean_100=0.0335
+[SUMMARY] t=337416   sub=1C   success_rate_100=0.820 reward_mean_100=2.425 ep_len_mean_100=129.1 dist_mean_100=0.0240 xy_mean_100=0.0135 z_mean_100=0.0189 stable_mean_100=1.64 yaw_mean_100=0.0331
+[SUMMARY] t=338144   sub=1C   success_rate_100=0.820 reward_mean_100=2.429 ep_len_mean_100=128.8 dist_mean_100=0.0241 xy_mean_100=0.0135 z_mean_100=0.0191 stable_mean_100=1.64 yaw_mean_100=0.0330
+[SUMMARY] t=339096   sub=1C   success_rate_100=0.830 reward_mean_100=2.464 ep_len_mean_100=128.1 dist_mean_100=0.0235 xy_mean_100=0.0129 z_mean_100=0.0190 stable_mean_100=1.66 yaw_mean_100=0.0326
+[SUMMARY] t=339768   sub=1C   success_rate_100=0.840 reward_mean_100=2.515 ep_len_mean_100=127.0 dist_mean_100=0.0234 xy_mean_100=0.0127 z_mean_100=0.0189 stable_mean_100=1.68 yaw_mean_100=0.0324
+[SUMMARY] t=340440   sub=1C   success_rate_100=0.840 reward_mean_100=2.516 ep_len_mean_100=126.8 dist_mean_100=0.0234 xy_mean_100=0.0128 z_mean_100=0.0189 stable_mean_100=1.68 yaw_mean_100=0.0323
+[SUMMARY] t=341208   sub=1C   success_rate_100=0.840 reward_mean_100=2.518 ep_len_mean_100=126.7 dist_mean_100=0.0234 xy_mean_100=0.0128 z_mean_100=0.0189 stable_mean_100=1.68 yaw_mean_100=0.0321
+[SUMMARY] t=342016   sub=1C   success_rate_100=0.850 reward_mean_100=2.581 ep_len_mean_100=125.8 dist_mean_100=0.0231 xy_mean_100=0.0125 z_mean_100=0.0188 stable_mean_100=1.70 yaw_mean_100=0.0323
+[SUMMARY] t=342760   sub=1C   success_rate_100=0.850 reward_mean_100=2.581 ep_len_mean_100=125.5 dist_mean_100=0.0231 xy_mean_100=0.0124 z_mean_100=0.0188 stable_mean_100=1.70 yaw_mean_100=0.0324
+[SUMMARY] t=343712   sub=1C   success_rate_100=0.850 reward_mean_100=2.581 ep_len_mean_100=125.7 dist_mean_100=0.0231 xy_mean_100=0.0124 z_mean_100=0.0189 stable_mean_100=1.70 yaw_mean_100=0.0325
+[SUMMARY] t=344560   sub=1C   success_rate_100=0.850 reward_mean_100=2.581 ep_len_mean_100=125.6 dist_mean_100=0.0231 xy_mean_100=0.0124 z_mean_100=0.0188 stable_mean_100=1.70 yaw_mean_100=0.0327
+[SUMMARY] t=345280   sub=1C   success_rate_100=0.860 reward_mean_100=2.618 ep_len_mean_100=124.6 dist_mean_100=0.0229 xy_mean_100=0.0122 z_mean_100=0.0187 stable_mean_100=1.72 yaw_mean_100=0.0320
+[SUMMARY] t=346168   sub=1C   success_rate_100=0.870 reward_mean_100=2.655 ep_len_mean_100=123.8 dist_mean_100=0.0226 xy_mean_100=0.0119 z_mean_100=0.0186 stable_mean_100=1.74 yaw_mean_100=0.0321
+[SUMMARY] t=346968   sub=1C   success_rate_100=0.870 reward_mean_100=2.654 ep_len_mean_100=123.6 dist_mean_100=0.0226 xy_mean_100=0.0118 z_mean_100=0.0186 stable_mean_100=1.74 yaw_mean_100=0.0324
+[SUMMARY] t=347696   sub=1C   success_rate_100=0.870 reward_mean_100=2.656 ep_len_mean_100=123.2 dist_mean_100=0.0226 xy_mean_100=0.0118 z_mean_100=0.0187 stable_mean_100=1.74 yaw_mean_100=0.0326
+[SUMMARY] t=348560   sub=1C   success_rate_100=0.870 reward_mean_100=2.656 ep_len_mean_100=122.9 dist_mean_100=0.0227 xy_mean_100=0.0117 z_mean_100=0.0188 stable_mean_100=1.74 yaw_mean_100=0.0332
+[SUMMARY] t=349512   sub=1C   success_rate_100=0.870 reward_mean_100=2.655 ep_len_mean_100=123.0 dist_mean_100=0.0226 xy_mean_100=0.0118 z_mean_100=0.0187 stable_mean_100=1.74 yaw_mean_100=0.0331
+[SUMMARY] t=350384   sub=1C   success_rate_100=0.870 reward_mean_100=2.655 ep_len_mean_100=123.0 dist_mean_100=0.0226 xy_mean_100=0.0117 z_mean_100=0.0187 stable_mean_100=1.74 yaw_mean_100=0.0330
+[SUMMARY] t=351152   sub=1C   success_rate_100=0.880 reward_mean_100=2.709 ep_len_mean_100=122.1 dist_mean_100=0.0224 xy_mean_100=0.0116 z_mean_100=0.0186 stable_mean_100=1.76 yaw_mean_100=0.0327
+[SUMMARY] t=351976   sub=1C   success_rate_100=0.890 reward_mean_100=2.755 ep_len_mean_100=121.2 dist_mean_100=0.0222 xy_mean_100=0.0114 z_mean_100=0.0184 stable_mean_100=1.78 yaw_mean_100=0.0331
+[SUMMARY] t=352752   sub=1C   success_rate_100=0.900 reward_mean_100=2.796 ep_len_mean_100=120.3 dist_mean_100=0.0221 xy_mean_100=0.0114 z_mean_100=0.0183 stable_mean_100=1.80 yaw_mean_100=0.0326
+[SUMMARY] t=353640   sub=1C   success_rate_100=0.900 reward_mean_100=2.795 ep_len_mean_100=119.9 dist_mean_100=0.0221 xy_mean_100=0.0114 z_mean_100=0.0183 stable_mean_100=1.80 yaw_mean_100=0.0327
+[SUMMARY] t=354520   sub=1C   success_rate_100=0.900 reward_mean_100=2.797 ep_len_mean_100=119.6 dist_mean_100=0.0221 xy_mean_100=0.0115 z_mean_100=0.0183 stable_mean_100=1.80 yaw_mean_100=0.0331
+[SUMMARY] t=355152   sub=1C   success_rate_100=0.900 reward_mean_100=2.797 ep_len_mean_100=119.2 dist_mean_100=0.0221 xy_mean_100=0.0115 z_mean_100=0.0183 stable_mean_100=1.80 yaw_mean_100=0.0330
+[SUMMARY] t=356672   sub=1C   success_rate_100=0.890 reward_mean_100=2.735 ep_len_mean_100=120.0 dist_mean_100=0.0223 xy_mean_100=0.0116 z_mean_100=0.0184 stable_mean_100=1.78 yaw_mean_100=0.0325
+[SUMMARY] t=358192   sub=1C   success_rate_100=0.880 reward_mean_100=2.675 ep_len_mean_100=120.7 dist_mean_100=0.0224 xy_mean_100=0.0116 z_mean_100=0.0186 stable_mean_100=1.76 yaw_mean_100=0.0324
+[SUMMARY] t=359168   sub=1C   success_rate_100=0.890 reward_mean_100=2.726 ep_len_mean_100=120.0 dist_mean_100=0.0222 xy_mean_100=0.0114 z_mean_100=0.0184 stable_mean_100=1.78 yaw_mean_100=0.0325
+[SUMMARY] t=360064   sub=1C   success_rate_100=0.900 reward_mean_100=2.771 ep_len_mean_100=119.2 dist_mean_100=0.0219 xy_mean_100=0.0112 z_mean_100=0.0181 stable_mean_100=1.80 yaw_mean_100=0.0327
+[SUMMARY] t=360888   sub=1C   success_rate_100=0.910 reward_mean_100=2.829 ep_len_mean_100=118.3 dist_mean_100=0.0218 xy_mean_100=0.0112 z_mean_100=0.0180 stable_mean_100=1.82 yaw_mean_100=0.0328
+[SUMMARY] t=361608   sub=1C   success_rate_100=0.920 reward_mean_100=2.876 ep_len_mean_100=117.3 dist_mean_100=0.0215 xy_mean_100=0.0110 z_mean_100=0.0178 stable_mean_100=1.84 yaw_mean_100=0.0327
+[SUMMARY] t=362384   sub=1C   success_rate_100=0.930 reward_mean_100=2.932 ep_len_mean_100=116.4 dist_mean_100=0.0214 xy_mean_100=0.0109 z_mean_100=0.0177 stable_mean_100=1.86 yaw_mean_100=0.0327
+[SUMMARY] t=363040   sub=1C   success_rate_100=0.930 reward_mean_100=2.934 ep_len_mean_100=115.9 dist_mean_100=0.0214 xy_mean_100=0.0108 z_mean_100=0.0177 stable_mean_100=1.86 yaw_mean_100=0.0324
+[SUMMARY] t=363840   sub=1C   success_rate_100=0.930 reward_mean_100=2.936 ep_len_mean_100=115.8 dist_mean_100=0.0213 xy_mean_100=0.0107 z_mean_100=0.0177 stable_mean_100=1.86 yaw_mean_100=0.0323
+[SUMMARY] t=364696   sub=1C   success_rate_100=0.930 reward_mean_100=2.936 ep_len_mean_100=115.3 dist_mean_100=0.0214 xy_mean_100=0.0106 z_mean_100=0.0178 stable_mean_100=1.86 yaw_mean_100=0.0327
+[SUMMARY] t=365528   sub=1C   success_rate_100=0.930 reward_mean_100=2.939 ep_len_mean_100=115.2 dist_mean_100=0.0213 xy_mean_100=0.0105 z_mean_100=0.0178 stable_mean_100=1.86 yaw_mean_100=0.0327
+[SUMMARY] t=366400   sub=1C   success_rate_100=0.930 reward_mean_100=2.936 ep_len_mean_100=115.2 dist_mean_100=0.0213 xy_mean_100=0.0105 z_mean_100=0.0178 stable_mean_100=1.86 yaw_mean_100=0.0332
+[SUMMARY] t=367192   sub=1C   success_rate_100=0.930 reward_mean_100=2.936 ep_len_mean_100=115.3 dist_mean_100=0.0213 xy_mean_100=0.0105 z_mean_100=0.0178 stable_mean_100=1.86 yaw_mean_100=0.0336
+[SUMMARY] t=367968   sub=1C   success_rate_100=0.930 reward_mean_100=2.937 ep_len_mean_100=115.3 dist_mean_100=0.0213 xy_mean_100=0.0106 z_mean_100=0.0178 stable_mean_100=1.86 yaw_mean_100=0.0339
+[SUMMARY] t=368784   sub=1C   success_rate_100=0.930 reward_mean_100=2.939 ep_len_mean_100=115.0 dist_mean_100=0.0213 xy_mean_100=0.0105 z_mean_100=0.0178 stable_mean_100=1.86 yaw_mean_100=0.0342
+[SUMMARY] t=369584   sub=1C   success_rate_100=0.930 reward_mean_100=2.939 ep_len_mean_100=114.9 dist_mean_100=0.0213 xy_mean_100=0.0105 z_mean_100=0.0178 stable_mean_100=1.86 yaw_mean_100=0.0348
+[SUMMARY] t=370416   sub=1C   success_rate_100=0.930 reward_mean_100=2.940 ep_len_mean_100=114.7 dist_mean_100=0.0213 xy_mean_100=0.0105 z_mean_100=0.0178 stable_mean_100=1.86 yaw_mean_100=0.0355
+[SUMMARY] t=371936   sub=1C   success_rate_100=0.920 reward_mean_100=2.879 ep_len_mean_100=115.4 dist_mean_100=0.0214 xy_mean_100=0.0105 z_mean_100=0.0179 stable_mean_100=1.84 yaw_mean_100=0.0352
+[SUMMARY] t=372720   sub=1C   success_rate_100=0.920 reward_mean_100=2.880 ep_len_mean_100=115.2 dist_mean_100=0.0214 xy_mean_100=0.0105 z_mean_100=0.0179 stable_mean_100=1.84 yaw_mean_100=0.0350
+[SUMMARY] t=374240   sub=1C   success_rate_100=0.910 reward_mean_100=2.819 ep_len_mean_100=116.0 dist_mean_100=0.0215 xy_mean_100=0.0106 z_mean_100=0.0180 stable_mean_100=1.82 yaw_mean_100=0.0361
+[SUMMARY] t=374960   sub=1C   success_rate_100=0.910 reward_mean_100=2.820 ep_len_mean_100=115.6 dist_mean_100=0.0215 xy_mean_100=0.0106 z_mean_100=0.0180 stable_mean_100=1.82 yaw_mean_100=0.0363
+[SUMMARY] t=375648   sub=1C   success_rate_100=0.910 reward_mean_100=2.824 ep_len_mean_100=115.1 dist_mean_100=0.0216 xy_mean_100=0.0105 z_mean_100=0.0181 stable_mean_100=1.82 yaw_mean_100=0.0365
+[SUMMARY] t=376280   sub=1C   success_rate_100=0.910 reward_mean_100=2.824 ep_len_mean_100=114.8 dist_mean_100=0.0216 xy_mean_100=0.0105 z_mean_100=0.0181 stable_mean_100=1.82 yaw_mean_100=0.0363
+[SUMMARY] t=376984   sub=1C   success_rate_100=0.920 reward_mean_100=2.883 ep_len_mean_100=113.8 dist_mean_100=0.0215 xy_mean_100=0.0106 z_mean_100=0.0180 stable_mean_100=1.84 yaw_mean_100=0.0362

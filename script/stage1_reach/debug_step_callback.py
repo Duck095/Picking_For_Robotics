@@ -9,25 +9,6 @@ from stable_baselines3.common.callbacks import BaseCallback
 
 
 class ReachDebugStepCallback(BaseCallback):
-    """
-    Debug step callback kiểu production.
-
-    Mục tiêu:
-    - Ghi log step-level gọn, dễ đọc
-    - Không dump quá nhiều reward breakdown
-    - Chỉ giữ các metric cần để debug motion ngắn hạn
-
-    File output:
-        debug_logs/stage1_<substage>_debug.log
-
-    Mỗi dòng log:
-        [STEP] t=... ep=... step=... sub=... r=... dist=... xy=... z=... success=...
-
-    Lưu ý:
-    - Step log vẫn hữu ích khi debug env/reward
-    - Nhưng không nên log quá nhiều field gây nhiễu
-    """
-
     def __init__(
         self,
         log_dir: str,
@@ -97,20 +78,28 @@ class ReachDebugStepCallback(BaseCallback):
         dist = float(info.get("dist", -1.0))
         xy_dist = float(info.get("xy_dist", -1.0))
         z_dist = float(info.get("z_dist", -1.0))
+        yaw_error = float(info.get("yaw_error", 0.0))
+
         success = bool(info.get("success", False))
         truncated = bool(info.get("truncated", False))
         xy_aligned = bool(info.get("xy_aligned", False))
+
+        phase = str(info.get("phase", "UNK"))
+        stable_pose_steps = int(info.get("stable_pose_steps", 0))
 
         line = (
             f"[STEP] "
             f"t={self.num_timesteps:<8d} "
             f"ep={ep:<5d} "
             f"step={ep_step:<4d} "
-            f"sub={sub:<2s} "
+            f"sub={sub:<4s} "
+            f"phase={phase:<11s} "
+            f"stable={stable_pose_steps:<3d} "
             f"r={reward:+.4f} "
             f"dist={dist:.4f} "
             f"xy={xy_dist:.4f} "
             f"z={z_dist:.4f} "
+            f"yaw={yaw_error:.4f} "
             f"aligned={int(xy_aligned)} "
             f"success={int(success)} "
             f"truncated={int(truncated)}"
@@ -119,7 +108,6 @@ class ReachDebugStepCallback(BaseCallback):
         self._fp.write(line + "\n")
         self._fp.flush()
 
-        # chỉ print định kỳ
         if self.num_timesteps - self._last_print >= self.print_freq:
             print(line)
             self._last_print = self.num_timesteps
