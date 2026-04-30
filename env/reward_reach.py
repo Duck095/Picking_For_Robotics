@@ -30,7 +30,9 @@ class RewardReach:
         return self.cfg.substage in ("1C", "1D")
 
     def _is_yaw_refine_stage(self) -> bool:
-        return self.cfg.substage == "1E"
+        # 1E và 1F đều là orientation stages (XY/Z lock -> yaw_align -> stable_hold)
+        # nên reward cần dùng nhánh orientation để tránh lệch mục tiêu học.
+        return self.cfg.substage in ("1E", "1F")
 
     def _is_orientation_full_stage(self) -> bool:
         return self.cfg.substage == "1F"

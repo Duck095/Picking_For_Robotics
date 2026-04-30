@@ -17,11 +17,9 @@ class GraspDebugStepCallback(BaseCallback):
         verbose: int = 1,
     ):
         super().__init__(verbose)
-
         self.log_dir = Path(log_dir)
         self.file_path = self.log_dir / file_name
         self.print_freq = int(print_freq)
-
         self._fp = None
         self._last_print = 0
 
@@ -32,37 +30,23 @@ class GraspDebugStepCallback(BaseCallback):
         self._fp.write(f"[START] {datetime.now()}\n")
         self._fp.write("=" * 100 + "\n")
         self._fp.flush()
-
-        if self.verbose > 0:
-            print(f"[GRASP_DEBUG_STEP] file={self.file_path}")
+        print(f"[GRASP_DEBUG_STEP] file={self.file_path}")
 
     def _extract_info(self) -> Optional[Dict[str, Any]]:
         infos = self.locals.get("infos", None)
-        if infos is None:
-            return None
-
-        if isinstance(infos, (list, tuple)) and len(infos) > 0:
-            if isinstance(infos[0], dict):
-                return infos[0]
-
+        if isinstance(infos, (list, tuple)) and len(infos) > 0 and isinstance(infos[0], dict):
+            return infos[0]
         if isinstance(infos, dict):
             return infos
-
         return None
 
     def _extract_reward(self) -> float:
         rewards = self.locals.get("rewards", None)
-        if rewards is None:
-            return 0.0
-
-        if isinstance(rewards, (list, tuple)):
-            return float(rewards[0]) if len(rewards) > 0 else 0.0
-
         if isinstance(rewards, np.ndarray):
-            flat = rewards.reshape(-1)
-            return float(flat[0]) if flat.size > 0 else 0.0
-
-        return float(rewards)
+            rewards = rewards.reshape(-1)
+        if isinstance(rewards, (list, tuple, np.ndarray)):
+            return float(rewards[0]) if len(rewards) > 0 else 0.0
+        return float(rewards) if rewards is not None else 0.0
 
     def _on_step(self) -> bool:
         info = self._extract_info()
@@ -71,48 +55,28 @@ class GraspDebugStepCallback(BaseCallback):
 
         reward = self._extract_reward()
 
-        ep = int(info.get("episode_idx", -1))
-        ep_step = int(info.get("step", -1))
-        sub = str(info.get("substage", "UNK"))
-
-        dist = float(info.get("dist", -1.0))
-        xy_dist = float(info.get("xy_dist", -1.0))
-        z_dist = float(info.get("z_dist", -1.0))
-        yaw_error = float(info.get("yaw_error", 0.0))
-
-        success = bool(info.get("success", False))
-        truncated = bool(info.get("truncated", False))
-
-        phase = str(info.get("phase", "UNK"))
-        stable_pose_steps = int(info.get("stable_pose_steps", 0))
-        lift_hold_steps = int(info.get("lift_hold_steps", 0))
-
-        grip_width = float(info.get("grip_width", -1.0))
-        left_contact = bool(info.get("left_contact", False))
-        right_contact = bool(info.get("right_contact", False))
-        grasp_established = bool(info.get("grasp_established", False))
-        object_lift_delta = float(info.get("object_lift_delta", 0.0))
-
         line = (
             f"[STEP] "
             f"t={self.num_timesteps:<8d} "
-            f"ep={ep:<5d} "
-            f"step={ep_step:<4d} "
-            f"sub={sub:<4s} "
-            f"phase={phase:<8s} "
-            f"hold={stable_pose_steps:<3d} "
-            f"lift_hold={lift_hold_steps:<3d} "
+            f"ep={int(info.get('episode_idx', -1)):<5d} "
+            f"step={int(info.get('step', -1)):<4d} "
+            f"sub={str(info.get('substage', 'UNK')):<4s} "
+            f"phase={str(info.get('phase', 'UNK')):<11s} "
+            f"hold={int(info.get('stable_pose_steps', 0)):<3d} "
+            f"lift_hold={int(info.get('lift_hold_steps', 0)):<3d} "
+            f"home_hold={int(info.get('home_hold_steps', 0)):<3d} "
             f"r={reward:+.4f} "
-            f"dist={dist:.4f} "
-            f"xy={xy_dist:.4f} "
-            f"z={z_dist:.4f} "
-            f"yaw={yaw_error:.4f} "
-            f"grip={grip_width:.4f} "
-            f"contact=({int(left_contact)},{int(right_contact)}) "
-            f"grasp={int(grasp_established)} "
-            f"lift_dz={object_lift_delta:.4f} "
-            f"success={int(success)} "
-            f"truncated={int(truncated)}"
+            f"dist={float(info.get('dist', -1.0)):.4f} "
+            f"xy={float(info.get('xy_dist', -1.0)):.4f} "
+            f"z={float(info.get('z_dist', -1.0)):.4f} "
+            f"yaw={float(info.get('yaw_error', 0.0)):.4f} "
+            f"grip={float(info.get('grip_width', -1.0)):.4f} "
+            f"contact=({int(bool(info.get('left_contact', False)))},{int(bool(info.get('right_contact', False)))}) "
+            f"grasp={int(bool(info.get('grasp_established', False)))} "
+            f"lift_dz={float(info.get('object_lift_delta', 0.0)):.4f} "
+            f"home_err={float(info.get('ee_to_home_xyz_error', -1.0)):.4f} "
+            f"success={int(bool(info.get('success', False)))} "
+            f"truncated={int(bool(info.get('truncated', False)))}"
         )
 
         self._fp.write(line + "\n")
@@ -129,6 +93,5 @@ class GraspDebugStepCallback(BaseCallback):
             self._fp.write("=" * 100 + "\n")
             self._fp.write(f"[END] {datetime.now()} | total_timesteps={self.num_timesteps}\n")
             self._fp.write("=" * 100 + "\n")
-            self._fp.flush()
             self._fp.close()
             self._fp = None

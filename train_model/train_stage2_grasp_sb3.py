@@ -25,12 +25,15 @@ from script.stage2_grasp.grasp_tensorboard_callback import GraspTensorboardCallb
 from config.grasp_env_config import build_stage2_grasp_config
 from env.grasp_env import GraspEnv
 
+
 TOTAL_TIMESTEPS_PER_SUBSTAGE = {
     "2A": 500_000,
     "2B": 700_000,
     "2C": 900_000,
+    "2D": 900_000,
 }
-SUBSTAGES = ["2A", "2B", "2C"]
+SUBSTAGES = ["2A", "2B", "2C", "2D"]
+
 N_ENVS = 8
 USE_SUBPROC = True
 USE_GUI = False
@@ -40,20 +43,22 @@ DEBUG_DIR = "debug_logs"
 TENSORBOARD_DIR = "logs_stage2"
 SAVE_FREQ_STEPS = 25_000
 
+
 def substage_to_tag(substage: str) -> str:
     return substage.replace(".", "_")
 
+
 def final_model_path(substage: str) -> str:
-    tag = substage_to_tag(substage)
-    return os.path.join(MODEL_DIR, f"stage2_grasp_mastery_{tag}.zip")
+    return os.path.join(MODEL_DIR, f"stage2_grasp_mastery_{substage_to_tag(substage)}.zip")
+
 
 def latest_model_path(substage: str) -> str:
-    tag = substage_to_tag(substage)
-    return os.path.join(MODEL_DIR, f"stage2_grasp_mastery_{tag}_latest.zip")
+    return os.path.join(MODEL_DIR, f"stage2_grasp_mastery_{substage_to_tag(substage)}_latest.zip")
+
 
 def checkpoint_dir(substage: str) -> str:
-    tag = substage_to_tag(substage)
-    return os.path.join(MODEL_DIR, f"checkpoints_stage2_{tag}")
+    return os.path.join(MODEL_DIR, f"checkpoints_stage2_{substage_to_tag(substage)}")
+
 
 def make_env(substage: str, rank: int, use_gui: bool = False) -> Callable[[], GraspEnv]:
     def _init():
@@ -63,17 +68,20 @@ def make_env(substage: str, rank: int, use_gui: bool = False) -> Callable[[], Gr
         return GraspEnv(cfg)
     return _init
 
+
 def build_vec_env(substage: str, n_envs: int, use_subproc: bool = True, use_gui: bool = False):
-    env_fns = [make_env(substage=substage, rank=i, use_gui=use_gui) for i in range(n_envs)]
+    env_fns = [make_env(substage, i, use_gui) for i in range(n_envs)]
     if use_subproc and n_envs > 1:
         return SubprocVecEnv(env_fns)
     return DummyVecEnv(env_fns)
+
 
 def build_callbacks(substage: str):
     tag = substage_to_tag(substage)
     os.makedirs(MODEL_DIR, exist_ok=True)
     os.makedirs(DEBUG_DIR, exist_ok=True)
     os.makedirs(checkpoint_dir(substage), exist_ok=True)
+
     checkpoint_cb = CheckpointCallback(
         save_freq=max(SAVE_FREQ_STEPS // N_ENVS, 1),
         save_path=checkpoint_dir(substage),
@@ -81,6 +89,7 @@ def build_callbacks(substage: str):
         save_replay_buffer=False,
         save_vecnormalize=False,
     )
+
     control_cb = SaveLatestOnStopCallback(
         save_dir=MODEL_DIR,
         latest_name=f"stage2_grasp_mastery_{tag}_latest",
@@ -88,10 +97,28 @@ def build_callbacks(substage: str):
         save_final_on_training_end=True,
         verbose=1,
     )
-    debug_step_cb = GraspDebugStepCallback(log_dir=DEBUG_DIR, file_name=f"stage2_{tag}_debug.log", print_freq=5000, verbose=1)
-    debug_summary_cb = GraspDebugSummaryCallback(log_dir=DEBUG_DIR, file_name=f"stage2_{tag}_summary.log", window_size=100, print_freq=10000, verbose=1)
+
+    debug_step_cb = GraspDebugStepCallback(
+        log_dir=DEBUG_DIR,
+        file_name=f"stage2_{tag}_debug.log",
+        print_freq=5000,
+        verbose=1,
+    )
+
+    debug_summary_cb = GraspDebugSummaryCallback(
+        log_dir=DEBUG_DIR,
+        file_name=f"stage2_{tag}_summary.log",
+        window_size=100,
+        print_freq=10000,
+        verbose=1,
+    )
+
     tensorboard_cb = GraspTensorboardCallback(window_size=100, verbose=0)
-    return CallbackList([checkpoint_cb, control_cb, debug_step_cb, debug_summary_cb, tensorboard_cb])
+
+    return CallbackList(
+        [checkpoint_cb, control_cb, debug_step_cb, debug_summary_cb, tensorboard_cb]
+    )
+
 
 def build_new_model(env) -> PPO:
     return PPO(
@@ -112,15 +139,18 @@ def build_new_model(env) -> PPO:
         seed=SEED,
     )
 
+
 def load_model(model_path: str, env) -> PPO:
     print(f"[LOAD] Loading model: {model_path}")
     return PPO.load(model_path, env=env)
+
 
 def resolve_training_state():
     for sub in SUBSTAGES:
         lp = latest_model_path(sub)
         if os.path.exists(lp):
             return {"mode": "resume_latest", "substage": sub, "model_path": lp}
+
     last_finished = None
     for sub in SUBSTAGES:
         fp = final_model_path(sub)
@@ -128,16 +158,29 @@ def resolve_training_state():
             last_finished = sub
         else:
             break
+
     if last_finished is None:
         return {"mode": "fresh_start", "substage": "2A", "model_path": None}
+
     if last_finished == SUBSTAGES[-1]:
-        return {"mode": "done", "substage": last_finished, "model_path": final_model_path(last_finished)}
+        return {
+            "mode": "done",
+            "substage": last_finished,
+            "model_path": final_model_path(last_finished),
+        }
+
     next_sub = SUBSTAGES[SUBSTAGES.index(last_finished) + 1]
-    return {"mode": "continue_next", "substage": next_sub, "model_path": final_model_path(last_finished), "prev_substage": last_finished}
+    return {
+        "mode": "continue_next",
+        "substage": next_sub,
+        "model_path": final_model_path(last_finished),
+        "prev_substage": last_finished,
+    }
+
 
 def train_one_substage(substage: str, model: Optional[PPO] = None) -> Tuple[PPO, bool]:
-    tag = substage_to_tag(substage)
     total_timesteps = TOTAL_TIMESTEPS_PER_SUBSTAGE[substage]
+
     print("=" * 80)
     print(f"TRAIN STAGE 2 - GRASP MASTERY - SUBSTAGE {substage}")
     print("=" * 80)
@@ -147,17 +190,36 @@ def train_one_substage(substage: str, model: Optional[PPO] = None) -> Tuple[PPO,
     print(f"USE_SUBPROC     : {USE_SUBPROC}")
     print(f"USE_GUI         : {USE_GUI}")
     print("=" * 80)
-    env = build_vec_env(substage=substage, n_envs=N_ENVS, use_subproc=USE_SUBPROC, use_gui=USE_GUI)
+
+    env = build_vec_env(
+        substage=substage,
+        n_envs=N_ENVS,
+        use_subproc=USE_SUBPROC,
+        use_gui=USE_GUI,
+    )
     callbacks = build_callbacks(substage)
+
     if model is None:
         model = build_new_model(env)
     else:
         model.set_env(env)
+
     finished_normally = False
-    latest_save_base = os.path.join(MODEL_DIR, f"stage2_grasp_mastery_{tag}_latest")
+    latest_save_base = os.path.join(
+        MODEL_DIR,
+        f"stage2_grasp_mastery_{substage_to_tag(substage)}_latest",
+    )
+
     try:
-        model.learn(total_timesteps=total_timesteps, callback=callbacks, reset_num_timesteps=False, tb_log_name=f"stage2_grasp_mastery_{tag}", progress_bar=True)
+        model.learn(
+            total_timesteps=total_timesteps,
+            callback=callbacks,
+            reset_num_timesteps=False,
+            tb_log_name=f"stage2_grasp_mastery_{substage_to_tag(substage)}",
+            progress_bar=True,
+        )
         finished_normally = True
+
         lp = latest_model_path(substage)
         if os.path.exists(lp):
             try:
@@ -165,6 +227,7 @@ def train_one_substage(substage: str, model: Optional[PPO] = None) -> Tuple[PPO,
                 print(f"[CLEAN] Removed stale latest file: {lp}")
             except Exception as e:
                 print(f"[WARN] Could not remove latest file {lp}: {e}")
+
     except (KeyboardInterrupt, InterruptedError, EOFError, BrokenPipeError) as e:
         print(f"\n[INTERRUPT] Substage {substage} interrupted: type={type(e).__name__} message={e}")
         try:
@@ -172,46 +235,52 @@ def train_one_substage(substage: str, model: Optional[PPO] = None) -> Tuple[PPO,
             print(f"[OK] Saved latest model: {latest_save_base}.zip")
         except Exception as e2:
             print(f"[ERROR] Failed to save latest model: {e2}")
+
     finally:
         try:
             env.close()
         except Exception as e:
             print(f"[WARN] env.close() raised during shutdown: {e}")
         print("[TRAIN] Env closed.")
+
     return model, finished_normally
+
 
 def main():
     state = resolve_training_state()
     print(f"[STATE] {state['mode']}")
+
     if state["mode"] == "done":
-        print("[DONE] Stage 2 (2A -> 2C) đã hoàn tất.")
+        print("[DONE] Stage 2 (2A -> 2D) đã hoàn tất.")
         print(f"[FINAL MODEL] {state['model_path']}")
         return
+
     if state["mode"] == "fresh_start":
         start_sub = state["substage"]
         model = None
+
     elif state["mode"] == "resume_latest":
         start_sub = state["substage"]
-        env = build_vec_env(substage=start_sub, n_envs=N_ENVS, use_subproc=USE_SUBPROC, use_gui=USE_GUI)
+        env = build_vec_env(start_sub, N_ENVS, USE_SUBPROC, USE_GUI)
         model = load_model(state["model_path"], env)
         env.close()
-    elif state["mode"] == "continue_next":
-        start_sub = state["substage"]
-        prev_sub = state["prev_substage"]
-        print(f"[INFO] Previous substage done: {prev_sub}")
-        print(f"[INFO] Continue with: {start_sub}")
-        env = build_vec_env(substage=start_sub, n_envs=N_ENVS, use_subproc=USE_SUBPROC, use_gui=USE_GUI)
-        model = load_model(state["model_path"], env)
-        env.close()
+
     else:
-        raise ValueError(f"Unknown training mode: {state['mode']}")
-    start_idx = SUBSTAGES.index(start_sub)
-    for sub in SUBSTAGES[start_idx:]:
+        start_sub = state["substage"]
+        print(f"[INFO] Previous substage done: {state['prev_substage']}")
+        print(f"[INFO] Continue with: {start_sub}")
+        env = build_vec_env(start_sub, N_ENVS, USE_SUBPROC, USE_GUI)
+        model = load_model(state["model_path"], env)
+        env.close()
+
+    for sub in SUBSTAGES[SUBSTAGES.index(start_sub):]:
         model, finished = train_one_substage(sub, model=model)
         if not finished:
             print(f"[STOP] Training stopped during substage {sub}.")
             return
-    print("[DONE] Finished full Stage 2 pipeline: 2A -> 2B -> 2C")
+
+    print("[DONE] Finished full Stage 2 pipeline: 2A -> 2B -> 2C -> 2D")
+
 
 if __name__ == "__main__":
     main()
